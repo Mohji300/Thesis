@@ -1,0 +1,54 @@
+<!-- search-results.component.html -->
+<div class="p-4 bg-gray-200 min-h-screen">
+    <div class="bg-white p-4 shadow-md rounded-lg">
+      <div class="flex items-center space-x-2">
+        <label for="search" class="text-lg font-semibold">Title</label>
+        <div class="relative flex-grow">
+          <input id="search" type="text" class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300" placeholder="Search...">
+          <button class="absolute right-2 top-2 text-gray-500">
+            🔍
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="mt-4 p-4 bg-white shadow-md rounded-lg">
+      <h2 class="text-lg font-semibold">Results</h2>
+      
+      <div class="flex items-center space-x-2 mt-2">
+        <select class="border p-1 rounded">
+          <option>Year</option>
+        </select>
+        <label class="inline-flex items-center">
+          <input type="checkbox" checked class="form-checkbox">
+          <span class="ml-1">CS</span>
+        </label>
+        <label class="inline-flex items-center">
+          <input type="checkbox" checked class="form-checkbox">
+          <span class="ml-1">IT</span>
+        </label>
+      </div>
+      
+      <div class="mt-4 border rounded-lg overflow-hidden">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-300">
+              <th class="p-2 border">Title</th>
+              <th class="p-2 border">Abstract</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border">
+              <td class="p-4 border"></td>
+              <td class="p-4 border"></td>
+            </tr>
+            <tr class="border">
+              <td class="p-4 border"></td>
+              <td class="p-4 border"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  

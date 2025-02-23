@@ -1,0 +1,28 @@
+<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-white bg-gray-300">
+    <div class="flex gap-2 flex-1 text-lg items-center justify-center">
+      <span class="flex text-lg items-center">Human Resources Information System</span>
+      <span class="flex text-lg items-center">|</span>
+      <span class="block text-base font-light">{{ getCurrentDateTime() }}</span>
+    </div>
+  </header>
+
+<div class="flex flex-col items-center justify-center h-screen bg-blue-100">
+    <h1 class="text-2xl font-semibold text-gray-800 text-center mb-4">
+      The Research Platform for Bicol University
+    </h1>
+
+    <p class="text-lg text-gray-600 text-center mb-8">
+      Computer Science and Information Technology Students
+    </p>
+
+    <div class="mt-6 relative w-full max-w-lg px-4">
+      <input
+        type="text"
+        placeholder="Search..."
+        class="px-4 py-2 w-full border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+      />
+      <button class="absolute inset-y-0 right-6 flex items-center">
+        🔍
+      </button>
+    </div>
+

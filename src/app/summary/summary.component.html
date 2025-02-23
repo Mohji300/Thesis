@@ -1,0 +1,37 @@
+<!-- search-results.component.html -->
+<div class="p-4 bg-gray-200 min-h-screen">
+    <div class="bg-white p-4 shadow-md rounded-lg">
+      <div class="flex items-center space-x-2">
+        <label for="search" class="text-lg font-semibold">Title</label>
+        <div class="relative flex-grow">
+          <input id="search" type="text" class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300" placeholder="Search...">
+          <button class="absolute right-2 top-2 text-gray-500">
+            🔍
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="mt-4 grid grid-cols-2 gap-4">
+      <!-- Left Box -->
+      <div class="bg-white p-4 shadow-md rounded-lg">
+        <h2 class="text-lg font-semibold">TITLE</h2>
+        <p class="mt-2 text-gray-600">BODY</p>
+      </div>
+      
+      <!-- Right Box -->
+      <div class="bg-white p-4 shadow-md rounded-lg">
+        <h2 class="text-lg font-semibold">Summarize PDF</h2>
+        <div class="mt-4 border rounded-lg p-4 min-h-[200px]"></div>
+        <h3 class="mt-4 text-md font-semibold">Summarize</h3>
+        <div class="grid grid-cols-3 gap-2 mt-2">
+          <input type="text" class="border p-2 rounded-md w-full">
+          <input type="text" class="border p-2 rounded-md w-full">
+          <input type="text" class="border p-2 rounded-md w-full">
+          <input type="text" class="border p-2 rounded-md w-full">
+          <input type="text" class="border p-2 rounded-md w-full">
+        </div>
+      </div>
+    </div>
+  </div>
+  
