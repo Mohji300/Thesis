@@ -1,12 +1,14 @@
-<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-white bg-gray-300">
+<!-- home.component.html -->
+<div class="min-h-screen flex flex-col bg-gray-300">
+  <header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-gray-200">
     <div class="flex gap-2 flex-1 text-lg items-center justify-center">
-      <span class="flex text-lg items-center">Human Resources Information System</span>
+      <span class="flex text-lg items-center">Bicol University</span>
       <span class="flex text-lg items-center">|</span>
-      <span class="block text-base font-light">{{ getCurrentDateTime() }}</span>
+      <span class="block text-base font-light">{{ currentDateTime }}</span>
     </div>
   </header>
 
-<div class="flex flex-col items-center justify-center h-screen bg-blue-100">
+  <main class="flex-1 flex flex-col items-center justify-center">
     <h1 class="text-2xl font-semibold text-gray-800 text-center mb-4">
       The Research Platform for Bicol University
     </h1>
@@ -25,4 +27,5 @@
         🔍
       </button>
     </div>
-
+  </main>
+</div>

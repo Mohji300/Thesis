@@ -1,17 +1,26 @@
-<!-- search-results.component.html -->
-<div class="p-4 bg-gray-200 min-h-screen">
-    <div class="bg-white p-4 shadow-md rounded-lg">
-      <div class="flex items-center space-x-2">
-        <label for="search" class="text-lg font-semibold">Title</label>
-        <div class="relative flex-grow">
-          <input id="search" type="text" class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300" placeholder="Search...">
-          <button class="absolute right-2 top-2 text-gray-500">
-            🔍
-          </button>
-        </div>
-      </div>
-    </div>
+<!-- summary.component.html -->
+<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-gray-200">
+  <!-- University name and DateTime on the left -->
+  <div class="flex gap-2 items-center">
+      <span class="text-lg">Bicol University</span>
+      <span class="text-lg mx-2">|</span>
+      <span class="text-base font-light">{{ currentDateTime }}</span>
+  </div>
+
+  <!-- Search bar on the right -->
+  <div class="flex-none w-96 relative">
+      <input 
+          id="search" 
+          type="text" 
+          class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300" 
+          placeholder="Search...">
+      <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+          🔍
+      </button>
+  </div>
+</header>
   
+<div class="p-4 bg-gray-300 min-h-screen">
     <div class="mt-4 grid grid-cols-2 gap-4">
       <!-- Left Box -->
       <div class="bg-white p-4 shadow-md rounded-lg">
