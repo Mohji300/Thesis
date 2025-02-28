@@ -1,3 +1,4 @@
+// content.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,12 +8,13 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [FormsModule, RouterModule],
   templateUrl: './content.component.html',
-  styleUrl: './content.component.css'
+  styleUrls: ['./content.component.css']
 })
 export class ContentComponent implements OnInit, OnDestroy {
   currentDateTime: string = '';
   private timeInterval: any;
-  searchQuery: string = '';
+
+  constructor() {} // No need for ActivatedRoute
 
   ngOnInit() {
     // Initialize the time immediately
@@ -32,12 +34,5 @@ export class ContentComponent implements OnInit, OnDestroy {
 
   private updateCurrentTime() {
     this.currentDateTime = new Date().toLocaleString();
-  }
-
-  handleSearch() {
-    if (this.searchQuery.trim()) {
-      console.log('Searching for:', this.searchQuery);
-      // Implement your search logic here
-    }
   }
 }
