@@ -1,6 +1,6 @@
 from bertopic import BERTopic
 
-bertopic_model = BERTopic.load("my_bertopic_model")  # Replace with your model path
+bertopic_model = BERTopic.load("../trained-models/bertopic-model/bertopic_model") 
 
 def get_topics(embeddings):
     topics, _ = bertopic_model.transform(embeddings)

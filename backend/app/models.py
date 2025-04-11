@@ -4,7 +4,7 @@ class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255))
     text = db.Column(db.Text)
-    metadata = db.Column(db.JSON)
+    document_metadata = db.Column(db.JSON)  # Renamed attribute
     summary = db.Column(db.Text)
     entities = db.Column(db.JSON)
     embeddings = db.Column(db.JSON)
