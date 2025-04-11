@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+mysql-connector-python
+sentence-transformers
+pdfminer.six
+requests
+bertopic
+numpy
