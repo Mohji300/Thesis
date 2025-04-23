@@ -9,9 +9,11 @@ from app.services.bertopic_service import get_topics
 
 bp = Blueprint('upload', __name__, url_prefix='/upload')
 
+
 @bp.route('/document', methods=['POST'])
 def upload_document():
-    if 'file' not in request.files:
+    return "Upload route is working!"
+    """ if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     file = request.files['file']
     if file.filename == '':
@@ -32,4 +34,4 @@ def upload_document():
         db.session.commit()
 
         return jsonify({'message': 'Document uploaded successfully', 'document_id': document.id}), 201
-    return jsonify({'error': 'Failed to upload document'}), 500
+    return jsonify({'error': 'Failed to upload document'}), 500 """

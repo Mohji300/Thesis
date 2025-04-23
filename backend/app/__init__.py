@@ -14,8 +14,13 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
 
     from .routes import upload_routes, query_routes
-    app.register_blueprint(upload_routes.bp)
-    app.register_blueprint(query_routes.bp)
+    app.register_blueprint(upload_routes.bp, url_prefix="/upload")
+    app.register_blueprint(query_routes.bp, url_prefix="/query")
+
+    #added for testing
+    @app.route("/", methods=["GET"])
+    def index():
+        return "Flask backend is running!"
 
     return app
 

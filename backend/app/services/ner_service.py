@@ -1,7 +1,7 @@
 import requests
 from app.config import Config
 
-API_URL = "https://api-inference.huggingface.co/models/JunLomerio/Thesis/ner_model"
+API_URL = "https://api-inference.huggingface.co/models/JunLomerio/Thesis/trained-models/ner_model"
 """ headers = {"Authorization": f"Bearer {Config.HUGGINGFACE_API_TOKEN}"} """
 
 def get_entities(text):

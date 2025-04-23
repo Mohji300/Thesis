@@ -6,9 +6,18 @@ import numpy as np
 
 bp = Blueprint('query', __name__, url_prefix='/query')
 
+""" # Default route for /query
+@bp.route('/', methods=['GET'])
+def query_index():
+    return "Query route is working!" """
+
 @bp.route('/search', methods=['POST'])
+
 def search_documents():
-    query = request.json['query']
+    return "Search route is working!"
+
+
+"""     query = request.json['query']
     query_embedding = np.array(get_sbert_embedding(query))
     top_k = request.json.get('top_k', 10)
 
@@ -27,4 +36,4 @@ def search_documents():
         'title': doc.title,
         'summary': doc.summary,
         'topics': doc.topics
-    } for doc in top_results])
+    } for doc in top_results]) """
