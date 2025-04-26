@@ -4,36 +4,53 @@ from app.models import Document
 from app.services.sbert_service import get_sbert_embedding
 import numpy as np
 
-bp = Blueprint('query', __name__, url_prefix='/query')
+bp = Blueprint('query', __name__)
 
-""" # Default route for /query
+# Optional: Health check route (you can remove later if you want)
 @bp.route('/', methods=['GET'])
 def query_index():
-    return "Query route is working!" """
+    return jsonify({"message": "Query route is working!"})
 
+# Actual Search Route
 @bp.route('/search', methods=['POST'])
-
 def search_documents():
-    return "Search route is working!"
+    try:
+        data = request.get_json()
+        query = data.get('query', '')
+        top_k = data.get('top_k', 10)
 
+        if not query:
+            return jsonify({"error": "Query text is required."}), 400
 
-"""     query = request.json['query']
-    query_embedding = np.array(get_sbert_embedding(query))
-    top_k = request.json.get('top_k', 10)
+        # Get query embedding
+        query_embedding = np.array(get_sbert_embedding(query))
 
-    documents = Document.query.all()
-    results = []
-    for doc in documents:
-        doc_embedding = np.array(doc.embeddings[0])
-        distance = np.linalg.norm(query_embedding - doc_embedding)
-        results.append({'document': doc, 'distance': distance})
+        # Retrieve all documents
+        documents = Document.query.all()
 
-    results.sort(key=lambda x: x['distance'])
-    top_results = [result['document'] for result in results[:top_k]]
+        if not documents:
+            return jsonify({"error": "No documents found in database."}), 404
 
-    return jsonify([{
-        'id': doc.id,
-        'title': doc.title,
-        'summary': doc.summary,
-        'topics': doc.topics
-    } for doc in top_results]) """
+        results = []
+        for doc in documents:
+            # Assume each doc has a single embedding stored
+            doc_embedding = np.array(doc.embeddings[0])
+            distance = np.linalg.norm(query_embedding - doc_embedding)
+            results.append({'document': doc, 'distance': distance})
+
+        # Sort results based on distance (lower = more similar)
+        results.sort(key=lambda x: x['distance'])
+        top_results = [result['document'] for result in results[:top_k]]
+
+        # Format results for JSON
+        response = [{
+            "id": doc.id,
+            "title": doc.title,
+            "summary": doc.summary,
+            "topics": doc.topics
+        } for doc in top_results]
+
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

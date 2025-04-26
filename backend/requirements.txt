@@ -1,9 +1,10 @@
 Flask
 Flask-SQLAlchemy
 Flask-Migrate
+Flask-Cors
 mysql-connector-python
 sentence-transformers
-pdfminer.six
+PyPDF2
 requests
 bertopic
 numpy
