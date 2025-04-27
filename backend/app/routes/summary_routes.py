@@ -1,7 +1,11 @@
 from flask import Blueprint, request, jsonify
 from app.services.bart_service import summarize_text
+import logging
 
 bp = Blueprint('summary', __name__)
+
+# Configure logging
+logging.basicConfig(level=logging.ERROR)
 
 @bp.route('/', methods=['GET'])
 def summary_index():
@@ -10,14 +14,23 @@ def summary_index():
 @bp.route('/generate', methods=['POST'])
 def generate_summary():
     try:
+        # Parse JSON data from the request
         data = request.get_json()
+        logging.info(f"Received data: {data}")
+        
         if not data or 'text' not in data:
             return jsonify({'error': 'No text provided'}), 400
 
+        # Extract text and generate summary
         text = data['text']
+        logging.info(f"Text to summarize: {text}")
+        
         summary = summarize_text(text)
+        logging.info(f"Generated summary: {summary}")
 
-        return jsonify({'summary': summary})
+        return jsonify({'summary': summary}), 200
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # Log the error for debugging
+        logging.error(f"Error in generate_summary: {e}")
+        return jsonify({'error': 'An error occurred while generating the summary'}), 500
