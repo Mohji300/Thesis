@@ -5,7 +5,7 @@ from app import db
 from app.models import Document
 from app.utils.pdf_parser import parse_pdf, safe_parse_json
 from app.services.bart_service import summarize_text
-from app.services.bert_service import predict_section
+from app.services.bert_service import extract_section
 from app.services.sbert_service import get_sbert_embedding
 from app.services.bertopic_service import get_topics
 
@@ -52,7 +52,7 @@ def upload_document():
         if len(pdf_content) < 100:
             print("[WARNING] PDF content too short for models. Using dummy summary/entities/topics.")
             summary = "Summary unavailable due to short content."
-            entities = []
+            sections = []
             embedding = get_sbert_embedding(pdf_content)
             topics = ["General"]
         else:
@@ -61,7 +61,7 @@ def upload_document():
             print("[DEBUG] Summarization complete.")
 
             print("[DEBUG] Starting Section extraction...")
-            entities = predict_section(pdf_content)
+            sections = extract_section(pdf_content)
             print("[DEBUG] Section extraction complete.")
 
             print("[DEBUG] Starting SBERT embedding generation...")
@@ -74,10 +74,10 @@ def upload_document():
 
         document = Document(
             title=title,
-            text=pdf_content,
+            #text=pdf_content,
             metadata=metadata,
             summary=summary,
-            entities=entities,
+            sections=sections,
             embeddings=[embedding],
             topics=topics
         )

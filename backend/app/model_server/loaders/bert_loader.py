@@ -57,31 +57,43 @@ def load_bert_model(model_dir):
         logging.error(error_message)
         raise
 
-def predict_sections(text):
+def extract_section(text, section_name):
     """
-    Predicts the section labels for each token in the given text
+    Extracts the content of a specific section from the given text
     using the loaded BERT model for token classification.
 
     Args:
         text (str): The input text for section labeling.
+        section_name (str): The name of the section to extract.
 
     Returns:
-        list or None: A list of predicted section labels for each token,
-                     or None on error.
+        str: The content of the specified section, or an empty string if not found.
     """
     global bert_tokenizer, bert_model, id2label
 
     try:
         if not text or len(text.strip()) == 0:
             logging.warning("Empty text provided. Returning None.")
-            return None
+            return ""
 
         # Ensure the model and tokenizer are loaded
         if bert_tokenizer is None or bert_model is None:
             load_bert_model()
 
         # Tokenize the input text, returning word IDs and offsets
-        inputs = bert_tokenizer(text, return_offsets_mapping=True, return_tensors="pt", truncation=True, max_length=512)
+        encoding = bert_tokenizer(
+            text,
+            return_offsets_mapping=True,
+            return_tensors="pt",
+            truncation=True,
+            max_length=512
+        )
+
+        inputs = {
+            "input_ids": encoding["input_ids"],
+            "attention_mask": encoding["attention_mask"],
+        }
+        offsets = encoding["offset_mapping"][0].tolist()
 
         # Perform token classification
         with torch.no_grad():
@@ -94,14 +106,35 @@ def predict_sections(text):
         # Map the predicted class IDs to their labels
         predicted_labels = [id2label.get(token_id, str(token_id)) for token_id in predicted_token_class_ids]
 
-        logging.debug(f"Predicted section labels for text: '{text[:50]}...' are '{predicted_labels}'")
-        return predicted_labels
+        # Group tokens by section labels
+        sections = {}
+        current_section = None
+        current_content = []
+
+        for label, offset in zip(predicted_labels, offsets):
+            if label != current_section:
+                if current_section is not None:
+                    sections[current_section] = " ".join(current_content)
+                current_section = label
+                current_content = []
+
+            # Extract the token text using the offsets
+            start, end = offset
+            if start != 0 or end != 0:  # Ignore special tokens
+                current_content.append(text[start:end])
+
+        # Add the last section
+        if current_section is not None:
+            sections[current_section] = " ".join(current_content)
+
+        # Return the content of the requested section
+        return sections.get(section_name, "")
 
     except Exception as e:
-        logging.error(f"Error in predict_sections: {e}")
-        return None
+        logging.error(f"Error in extract_section: {e}")
+        return ""
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     try:
         # 1.  Make sure the path is correct
         local_model_dir = "path/to/your/bert_model"  # <--- UPDATE THIS PATH
@@ -109,10 +142,10 @@ if __name__ == "__main__":
         # Standalone test for the BERT model loaded from a local directory
         test_text = "This is an abstract.  Here is the introduction.  The literature review follows. We describe the methodology.  The results are presented.  A discussion of the results.  Finally, we conclude."
         model, tokenizer = load_bert_model(local_model_dir)
-        predicted_sections = predict_sections(test_text)
+        predicted_sections = extract_sections(test_text)
         print("[DEBUG] Predicted sections successfully.")
         print(f"Predicted sections: {predicted_sections}")
     except FileNotFoundError as e:
         print(f"[ERROR] {e}")
     except Exception as e:
-        print(f"[ERROR] An unexpected error occurred: {e}")
+        print(f"[ERROR] An unexpected error occurred: {e}") """

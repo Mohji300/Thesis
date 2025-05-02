@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app import bert_model  # Import the globally loaded BERT model
-from app.services.bert_service import predict_section  # Import the updated predict_section function
+from app.services.bert_service import extract_section  # Import the updated extract_section function
 
 bp = Blueprint('extract', __name__)
 
@@ -30,7 +30,7 @@ def extract_sections():
         text = data['text']
 
         # Use the globally loaded BERT model to predict sections
-        sections = predict_section(text)
+        sections = extract_section(text)
 
         if sections is None:
             return jsonify({'error': 'Failed to predict sections'}), 500
