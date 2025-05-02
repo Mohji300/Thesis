@@ -11,17 +11,17 @@ migrate = Migrate()
 # Model Imports (Load local models once at startup)
 from app.model_server.loaders.sbert_loader import load_sbert_model
 from app.model_server.loaders.bart_loader import load_bart_model
-from app.model_server.loaders.ner_loader import load_ner_model
+from app.model_server.loaders.bert_loader import load_bert_model
 from app.model_server.loaders.bertopic_loader import load_bertopic_model
 
 # Global model variables
 sbert_model = None
 bart_model = None
-ner_model = None
+bert_model = None
 bertopic_model = None
 
 def create_app(config_class=Config):
-    global sbert_model, bart_model, ner_model, bertopic_model
+    global sbert_model, bart_model, bert_model, bertopic_model
 
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -36,7 +36,7 @@ def create_app(config_class=Config):
     # ==== Load Models at Startup ====
     sbert_model = load_sbert_model()
     bart_model = load_bart_model()
-    ner_model = load_ner_model()
+    bert_model = load_bert_model("app/trained-models/bert_model")
     bertopic_model = load_bertopic_model()
 
     print("Models loaded successfully!")

@@ -5,7 +5,7 @@ from app import db
 from app.models import Document
 from app.utils.pdf_parser import parse_pdf, safe_parse_json
 from app.services.bart_service import summarize_text
-from app.services.ner_service import get_entities
+from app.services.bert_service import predict_section
 from app.services.sbert_service import get_sbert_embedding
 from app.services.bertopic_service import get_topics
 
@@ -60,9 +60,9 @@ def upload_document():
             summary = summarize_text(pdf_content)
             print("[DEBUG] Summarization complete.")
 
-            print("[DEBUG] Starting NER extraction...")
-            entities = get_entities(pdf_content)
-            print("[DEBUG] NER extraction complete.")
+            print("[DEBUG] Starting Section extraction...")
+            entities = predict_section(pdf_content)
+            print("[DEBUG] Section extraction complete.")
 
             print("[DEBUG] Starting SBERT embedding generation...")
             embedding = get_sbert_embedding(pdf_content)
