@@ -30,6 +30,10 @@ def load_bart_model():
         print(f"[ERROR] Failed to load BART model: {str(e)}")
         raise
 
+def clean_text(text):
+    # This removes invalid surrogate pairs and non-UTF-8 encodable characters
+    return text.encode("utf-8", "ignore").decode("utf-8", "ignore")
+
 def summarize_text(text, max_length=150):
     """
     Summarizes the given text using the locally loaded BART model.
@@ -42,9 +46,12 @@ def summarize_text(text, max_length=150):
         str: The summarized text.
     """
     try:
-        if not text or len(text.split()) < 20:  # Less than 20 words
+        if not text or len(text.split()) < 20:
             print("[WARNING] Text too short to summarize. Returning original text.")
             return text
+
+        # Clean the text to remove surrogate characters
+        text = clean_text(text)
 
         # Load the BART model and tokenizer
         bart = load_bart_model()
