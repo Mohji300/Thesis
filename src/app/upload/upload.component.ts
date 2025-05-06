@@ -40,6 +40,16 @@ export class UploadComponent {
       return;
     }
 
+    if (!this.title.trim()) {
+      alert('Please provide a title for the document.');
+      return;
+    }
+
+    if (!this.metadata.trim()) {
+      alert('Please provide metadata for the document.');
+      return;
+    }
+
     this.isLoading = true;
     this.successMessage = '';
     this.errorMessage = '';
