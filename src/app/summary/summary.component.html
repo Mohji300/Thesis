@@ -1,49 +1,47 @@
 <!-- summary.component.html -->
 <header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-gray-200">
-  <!-- University name and DateTime on the left -->
   <div class="flex gap-2 items-center">
-      <span class="text-lg">Bicol University</span>
-      <span class="text-lg mx-2">|</span>
-      <span class="text-base font-light">{{ currentDateTime }}</span>
-  </div>
-
-  <!-- Search bar on the right -->
-  <div class="flex-none w-96 relative">
-      <input 
-          id="search" 
-          type="text" 
-          class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300" 
-          placeholder="Search...">
-      <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-          🔍
-      </button>
+    <span class="text-lg">Bicol University</span>
+    <span class="text-lg mx-2">|</span>
+    <span class="text-base font-light">{{ currentDateTime }}</span>
   </div>
 </header>
-  
-<div class="p-4 bg-gray-300 min-h-screen">
-    <div class="mt-4 grid grid-cols-2 gap-4">
-      <!-- Left Box -->
-      <div class="bg-white p-4 shadow-md rounded-lg">
-        <h2 class="text-lg font-semibold">Artificial Intelligence</h2>
-        <p class="mt-2 text-gray-600">
-          <strong>Authors:</strong> Pragyna Karmakar, +2 more<br>
-          <strong>Published:</strong> 22 Sep 2024 - International Journal of Advanced Research...<br><br>
-          <strong>TL;DR:</strong> Artificial Intelligence (A.I.) automates human intelligence tasks, using learning algorithms to analyze data, recognize patterns, and provide intuitive solutions, with applications in medical diagnostics and customized hardware, following a structured process of data preparation, model training, and improvement.<br><br>
-          <strong>Abstract:</strong> Artificial Intelligence (A.I.) is a multidisciplinary field whose goal is to automate activities that presently require human intelligence. It refers to what information about the language structure being transmitted to the machine: It should result in a more intuitive and faster solution, based on a learning algorithm that repeats patterns in new data. Recent successes in A.I. include computerized medical diagnosticians and systems that automatically customize hardware to particular user requirements. Artificial Intelligence works according to the phases like - getting the data, clean/manipulate, model training, testing, and improvement.
-        </p>
+
+<div class="p-4 bg-gray-300 min-h-screen grid grid-cols-2 gap-4">
+  <!-- Left Side: Summarized Body -->
+  <div class="bg-white p-4 shadow-md rounded-lg">
+    <h2 class="text-lg font-semibold">TITLE</h2>
+    <div class="mt-4 text-gray-600">
+      <p>{{ summary }}</p>
+    </div>
+  </div>
+
+  <!-- Right Side: Buttons for Actions -->
+  <div class="bg-white p-4 shadow-md rounded-lg">
+    <h2 class="text-lg font-semibold">Summarize PDF</h2>
+    <div class="mt-4">
+      <h3 class="text-md font-semibold">Summarize</h3>
+      <div class="grid grid-cols-3 gap-2 mt-2">
+        <button
+          *ngFor="let section of sections"
+          class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          (click)="summarizeSection(section)"
+        >
+          {{ section }}
+        </button>
       </div>
-      
-      <!-- Right Box -->
-      <div class="bg-white p-4 shadow-md rounded-lg">
-        <h2 class="text-lg font-semibold">Summarize PDF</h2>
-        <h3 class="mt-4 text-md font-semibold">Summarize</h3>
-        <div class="grid grid-cols-3 gap-2 mt-2">
-          <button class="border p-2 rounded-md w-full">Limitations</button>
-          <button class="border p-2 rounded-md w-full">Conclusions</button>
-          <button class="border p-2 rounded-md w-full">Literature survey</button>
-          <button class="border p-2 rounded-md w-full">Results</button>
-          <button class="border p-2 rounded-md w-full">Methods used</button>
-        </div>
+    </div>
+    <div class="mt-4">
+      <h3 class="text-md font-semibold">Extract Sections</h3>
+      <div class="grid grid-cols-3 gap-2 mt-2">
+        <button
+          *ngFor="let section of sections"
+          class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+          (click)="extractSection(section)"
+        >
+          {{ section }}
+        </button>
       </div>
     </div>
   </div>
+</div>

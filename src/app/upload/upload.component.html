@@ -1,0 +1,50 @@
+<div class="upload-container">
+  <h1 class="text-center text-2xl font-bold mb-4">Upload Document</h1>
+
+  <div *ngIf="isLoading" class="text-center text-blue-500">Uploading...</div>
+  <div *ngIf="successMessage" class="text-center text-green-500">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="text-center text-red-500">{{ errorMessage }}</div>
+
+  <form (submit)="uploadDocument(); $event.preventDefault()" class="upload-form">
+    <div class="form-group">
+      <label for="title" class="block font-medium mb-2">Title</label>
+      <input
+        id="title"
+        type="text"
+        [(ngModel)]="title"
+        name="title"
+        class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+        placeholder="Enter document title"
+      />
+    </div>
+
+    <div class="form-group mt-4">
+      <label for="metadata" class="block font-medium mb-2">Metadata (JSON)</label>
+      <textarea
+        id="metadata"
+        [(ngModel)]="metadata"
+        name="metadata"
+        class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+        placeholder='{"author": "John Doe", "year": 2025}'
+      ></textarea>
+    </div>
+
+    <div class="form-group mt-4">
+      <label for="file" class="block font-medium mb-2">Select PDF File</label>
+      <input
+        id="file"
+        type="file"
+        (change)="onFileSelected($event)"
+        class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+        accept=".pdf"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+    >
+      Upload
+    </button>
+  </form>
+</div>

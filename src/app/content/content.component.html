@@ -66,5 +66,9 @@
           </tbody>
         </table>
     </div>
+
+    <div *ngIf="!isLoading && documents.length === 0 && !errorMessage" class="text-center text-gray-500">
+      Query not found. Please try a different search term.
+    </div>
   </div>
 </div>

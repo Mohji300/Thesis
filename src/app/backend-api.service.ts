@@ -10,7 +10,13 @@ export class BackendApiService {
 
   constructor(private http: HttpClient) {}
 
-  //Matches: POST /upload/document
+  getApiUrl(): string {
+    return this.apiUrl;
+  }
+
+  /**
+   * Upload a PDF document to the backend.
+   */
   uploadPdf(file: File, title: string, metadata: any = {}): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
@@ -19,23 +25,31 @@ export class BackendApiService {
     return this.http.post(`${this.apiUrl}/upload/document`, formData);
   }
 
-  //POST /query/search
+  /*
+   * Search documents in the database.
+   */
   searchDocuments(query: string, top_k: number = 10): Observable<any> {
     return this.http.post(`${this.apiUrl}/query/search`, { query, top_k });
   }
 
-  //POST /summary
-  summarizeSection(text: string, section: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/summary`, { text, section });
+  /*
+   * Generate a summary for a given text.
+   */
+  generateSummary(text: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/summary/generate`, { text });
   }
 
-  //POST /extract
+  /*
+   * Extract sections from a given text.
+   */
   extractSections(text: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/extract`, { text });
+    return this.http.post(`${this.apiUrl}/extract/sections`, { text });
   }
 
-  //POST /cluster
-  clusterTopics(texts: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/cluster`, { texts });
+  /*
+   * Assign a cluster (topic) to the input text.
+   */
+  assignCluster(text: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/cluster/assign`, { text });
   }
 }
