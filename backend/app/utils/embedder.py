@@ -2,8 +2,9 @@ import os
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
 import logging
+import numpy as np
 
-# Configure logging (you might want to adjust this to your app's logging setup)
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 
 
@@ -51,16 +52,15 @@ class SBERTEmbedder:
             text (str): The input text.
 
         Returns:
-            list: A list of embeddings or None on error.
+            np.ndarray: A NumPy array of embeddings or None on error.
         """
         try:
             if not text or not text.strip():
                 logging.warning("Empty text provided. Returning None.")
-                return None  # Or [] if you prefer an empty list
+                return None
 
             embedding = self.model.encode(text, convert_to_tensor=True)
-            return embedding.tolist()
-
+            return embedding.cpu().numpy()  # Convert to NumPy array
         except Exception as e:
             logging.error(f"Error generating embedding for text: {e}")
             return None  # Or raise, depending on your error handling policy
