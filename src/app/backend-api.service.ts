@@ -52,4 +52,18 @@ export class BackendApiService {
   assignCluster(text: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/cluster/assign`, { text });
   }
+
+    /*
+   * Extract a specific section from a document.
+   */
+    extractSection(sectionName: string): Observable<any> {
+      return this.http.post(`${this.apiUrl}/extract/section`, { sectionName });
+    }
+  
+    /*
+     * Summarize a specific section from a document.
+     */
+    summarizeSection(sectionName: string): Observable<any> {
+      return this.http.post(`${this.apiUrl}/summarize/section`, { sectionName });
+    }
 }

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BackendApiService } from '../backend-api.service';
+
 @Component({
   selector: 'app-upload',
   standalone: true,
@@ -11,29 +12,23 @@ import { BackendApiService } from '../backend-api.service';
   styleUrls: ['./upload.component.css']
 })
 export class UploadComponent {
-  title: string = ''; // Holds the document title
-  metadata: string = ''; // Holds the metadata as a JSON string
-  selectedFile: File | null = null; // Holds the selected file
-  isLoading: boolean = false; // Loading state for API calls
-  successMessage: string = ''; // Success message
-  errorMessage: string = ''; // Error message
+  title: string = '';
+  authors: string = ''; // Single text field for authors
+  selectedFile: File | null = null;
+  isLoading: boolean = false;
+  successMessage: string = '';
+  errorMessage: string = '';
 
   constructor(private backendApiService: BackendApiService, private http: HttpClient) {}
 
-  /**
-   * Handles file selection.
-   */
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      this.errorMessage = ''; // Clear any previous error
+      this.errorMessage = '';
     }
   }
 
-  /**
-   * Uploads the document to the backend.
-   */
   uploadDocument() {
     if (!this.selectedFile) {
       this.errorMessage = 'Please select a file to upload.';
@@ -45,10 +40,22 @@ export class UploadComponent {
       return;
     }
 
-    if (!this.metadata.trim()) {
-      alert('Please provide metadata for the document.');
+    const authorsArray = this.authors
+      .split(',')
+      .map((author) => author.trim())
+      .filter((author) => author.length > 0);
+
+    if (authorsArray.length === 0) {
+      alert('Please provide at least one author.');
       return;
     }
+
+    if (authorsArray.length > 5) {
+      alert('You can only provide up to 5 authors.');
+      return;
+    }
+
+    const metadataJson = JSON.stringify({ authors: authorsArray });
 
     this.isLoading = true;
     this.successMessage = '';
@@ -56,10 +63,10 @@ export class UploadComponent {
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
-    formData.append('title', this.title || 'Untitled');
-    formData.append('metadata', this.metadata || '{}');
+    formData.append('title', this.title);
+    formData.append('metadata', metadataJson);
 
-    this.http.post(`${this.backendApiService.getApiUrl}/upload/document`, formData).subscribe(
+    this.http.post(`${this.backendApiService.getApiUrl()}/upload/document`, formData).subscribe(
       (response: any) => {
         this.successMessage = `Document uploaded successfully! Document ID: ${response.document_id}`;
         this.isLoading = false;
@@ -73,12 +80,9 @@ export class UploadComponent {
     );
   }
 
-  /**
-   * Resets the form after a successful upload.
-   */
   resetForm() {
     this.title = '';
-    this.metadata = '';
+    this.authors = '';
     this.selectedFile = null;
   }
 }

@@ -6,6 +6,7 @@
   <div *ngIf="errorMessage" class="text-center text-red-500">{{ errorMessage }}</div>
 
   <form (submit)="uploadDocument(); $event.preventDefault()" class="upload-form">
+    <!-- Title -->
     <div class="form-group">
       <label for="title" class="block font-medium mb-2">Title</label>
       <input
@@ -18,17 +19,20 @@
       />
     </div>
 
+    <!-- Authors -->
     <div class="form-group mt-4">
-      <label for="metadata" class="block font-medium mb-2">Metadata (JSON)</label>
-      <textarea
-        id="metadata"
-        [(ngModel)]="metadata"
-        name="metadata"
+      <label for="authors" class="block font-medium mb-2">Authors</label>
+      <input
+        id="authors"
+        type="text"
+        [(ngModel)]="authors"
+        name="authors"
         class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-        placeholder='{"author": "John Doe", "year": 2025}'
-      ></textarea>
+        placeholder="Enter authors separated by commas (e.g., John Doe, Jane Smith)"
+      />
     </div>
 
+    <!-- File upload -->
     <div class="form-group mt-4">
       <label for="file" class="block font-medium mb-2">Select PDF File</label>
       <input
@@ -40,6 +44,7 @@
       />
     </div>
 
+    <!-- Submit -->
     <button
       type="submit"
       class="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"

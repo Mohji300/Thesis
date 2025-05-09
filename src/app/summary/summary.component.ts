@@ -90,7 +90,19 @@ export class SummaryComponent implements OnInit, OnDestroy {
    */
   extractSection(section: string) {
     console.log(`Extracting section: ${section}`);
-    // Add logic to extract the specific section
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.backendApiService.extractSection(section).subscribe(
+      (response) => {
+        console.log(`Extracted section content: ${response.content}`);
+        this.isLoading = false;
+      },
+      (error) => {
+        console.error('Error extracting section:', error);
+        this.errorMessage = 'Failed to extract section. Please try again.';
+        this.isLoading = false;
+      }
+    );
   }
 
   /**
@@ -98,6 +110,18 @@ export class SummaryComponent implements OnInit, OnDestroy {
    */
   summarizeSection(section: string) {
     console.log(`Summarizing section: ${section}`);
-    // Add logic to summarize the specific section
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.backendApiService.summarizeSection(section).subscribe(
+      (response) => {
+        console.log(`Summarized section content: ${response.summary}`);
+        this.isLoading = false;
+      },
+      (error) => {
+        console.error('Error summarizing section:', error);
+        this.errorMessage = 'Failed to summarize section. Please try again.';
+        this.isLoading = false;
+      }
+    );
   }
 }

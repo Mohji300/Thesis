@@ -80,14 +80,26 @@ def summarize_text(text, max_length=150):
         print(f"[ERROR] Error in summarize_text: {e}")
         raise
 
-""" if __name__ == "__main__":
+def summarize_section(file_content, section_name, max_length=150):
+    """
+    Summarizes a specific section of a file.
+
+    Args:
+        file_content (dict): The content of the file, structured as sections.
+        section_name (str): The name of the section to summarize.
+        max_length (int): The maximum length of the summary.
+
+    Returns:
+        str: The summarized text of the section.
+    """
     try:
-        # Standalone test for the BART model
-        test_text = "This is a test text for summarization. It contains enough words to generate a meaningful summary."
-        summary = summarize_text(test_text)
-        print("[DEBUG] Summary generated successfully.")
-        print(summary)
-    except FileNotFoundError as e:
-        print(f"[ERROR] {e}")
+        if section_name not in file_content:
+            raise ValueError(f"Section '{section_name}' not found in the file content.")
+
+        section_text = file_content[section_name]
+        print(f"[DEBUG] Summarizing section: {section_name}")
+        return summarize_text(section_text, max_length=max_length)
+
     except Exception as e:
-        print(f"[ERROR] An unexpected error occurred: {e}") """
+        print(f"[ERROR] Error in summarize_section: {e}")
+        raise
