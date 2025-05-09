@@ -1,41 +1,49 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { BackendApiService } from '../backend-api.service'; // Import the BackendApiService
+import { BackendApiService } from '../backend-api.service';
 
 @Component({
   selector: 'app-summary',
   standalone: true,
-  imports: [FormsModule, RouterModule, CommonModule],
   templateUrl: './summary.component.html',
-  styleUrl: './summary.component.css'
+  styleUrl: './summary.component.css',
+  imports: [CommonModule],
 })
 export class SummaryComponent implements OnInit, OnDestroy {
   currentDateTime: string = '';
   private timeInterval: any;
-  summary: string = ''; // Holds the summarized body of the document
-  sections: string[] = []; // Holds the extracted sections
+  sections: string[] = []; // Holds the extracted section names
+  sectionContent: { [key: string]: string } = {}; // Holds the content of each section
+  selectedSection: string = ''; // Holds the currently selected section for summarization
+  summarizedContent: string = ''; // Holds the summarized content of the selected section
   isLoading: boolean = false; // Loading state for API calls
   errorMessage: string = ''; // Error message for API failures
 
-  constructor(private backendApiService: BackendApiService) {} // Inject BackendApiService
+  // New properties for title, authors, and abstract
+  documentTitle: string = '';
+  documentAuthors: string = '';
+  documentAbstract: string = '';
+
+  constructor(private backendApiService: BackendApiService, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    // Initialize the time immediately
     this.updateCurrentTime();
-    // Update time every second
     this.timeInterval = setInterval(() => {
       this.updateCurrentTime();
     }, 1000);
 
-    // Fetch the initial summary and sections (stubbed for now)
-    this.fetchSummary();
-    this.fetchSections();
+    // Fetch the document ID from the route parameters
+    this.route.params.subscribe((params) => {
+      const documentId = params['id'];
+      if (documentId) {
+        this.fetchDocumentDetails(documentId); // Fetch document details (title, authors, abstract)
+        this.fetchSections(documentId); // Fetch sections and their content
+      }
+    });
   }
 
   ngOnDestroy() {
-    // Clean up interval when component is destroyed
     if (this.timeInterval) {
       clearInterval(this.timeInterval);
     }
@@ -46,35 +54,35 @@ export class SummaryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Fetches the summarized body of the document.
+   * Fetches the document details (title, authors, abstract) from the backend.
    */
-  fetchSummary() {
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.backendApiService.generateSummary('Sample text for summary').subscribe(
+  fetchDocumentDetails(documentId: number) {
+    this.backendApiService.getDocumentDetails(documentId).subscribe(
       (response) => {
-        this.summary = response.summary;
-        console.log('Fetched summary:', this.summary);
-        this.isLoading = false;
+        this.documentTitle = response.title;
+        this.documentAuthors = response.authors;
+        this.documentAbstract = response.abstract;
+        console.log('Fetched document details:', response);
       },
       (error) => {
-        console.error('Error fetching summary:', error);
-        this.errorMessage = 'Failed to fetch summary. Please try again.';
-        this.isLoading = false;
+        console.error('Error fetching document details:', error);
+        this.errorMessage = 'Failed to fetch document details. Please try again.';
       }
     );
   }
 
   /**
-   * Fetches the sections of the document.
+   * Fetches the sections and their content from the backend.
    */
-  fetchSections() {
+  fetchSections(documentId: number) {
     this.isLoading = true;
     this.errorMessage = '';
-    this.backendApiService.extractSections('Sample text for sections').subscribe(
+    this.backendApiService.getDocumentSections(documentId).subscribe(
       (response) => {
-        this.sections = response.sections;
+        this.sections = Object.keys(response.sections); // Extract section names
+        this.sectionContent = response.sections; // Store section content
         console.log('Fetched sections:', this.sections);
+        console.log('Fetched section content:', this.sectionContent);
         this.isLoading = false;
       },
       (error) => {
@@ -86,18 +94,30 @@ export class SummaryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handles the extraction of a specific section.
-   */
-  extractSection(section: string) {
-    console.log(`Extracting section: ${section}`);
-    // Add logic to extract the specific section
-  }
-
-  /**
    * Handles summarizing a specific section.
    */
   summarizeSection(section: string) {
-    console.log(`Summarizing section: ${section}`);
-    // Add logic to summarize the specific section
+    this.selectedSection = section;
+    const sectionText = this.sectionContent[section]; // Get the content of the selected section
+    if (!sectionText) {
+      console.error('No content found for the selected section.');
+      this.errorMessage = 'No content found for the selected section.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.backendApiService.generateSummary(sectionText).subscribe(
+      (response) => {
+        this.summarizedContent = response.summary; // Store the summarized content
+        console.log(`Summarized section (${section}):`, this.summarizedContent);
+        this.isLoading = false;
+      },
+      (error) => {
+        console.error('Error summarizing section:', error);
+        this.errorMessage = 'Failed to summarize the section. Please try again.';
+        this.isLoading = false;
+      }
+    );
   }
 }

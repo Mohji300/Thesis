@@ -8,40 +8,67 @@
 </header>
 
 <div class="p-4 bg-gray-300 min-h-screen grid grid-cols-2 gap-4">
-  <!-- Left Side: Summarized Body -->
+  <!-- Left Side: Title, Authors, and Abstract -->
   <div class="bg-white p-4 shadow-md rounded-lg">
-    <h2 class="text-lg font-semibold">TITLE</h2>
-    <div class="mt-4 text-gray-600">
-      <p>{{ summary }}</p>
+    <h2 class="text-lg font-semibold">Document Details</h2>
+    <div class="mt-4">
+      <h3 class="text-md font-semibold">Title</h3>
+      <p class="text-gray-600">{{ documentTitle }}</p>
+
+      <h3 class="text-md font-semibold mt-4">Authors</h3>
+      <p class="text-gray-600">{{ documentAuthors }}</p>
+
+      <h3 class="text-md font-semibold mt-4">Abstract</h3>
+      <p class="text-gray-600">{{ documentAbstract }}</p>
     </div>
   </div>
 
-  <!-- Right Side: Buttons for Actions -->
-  <div class="bg-white p-4 shadow-md rounded-lg">
-    <h2 class="text-lg font-semibold">Summarize PDF</h2>
-    <div class="mt-4">
-      <h3 class="text-md font-semibold">Summarize</h3>
-      <div class="grid grid-cols-3 gap-2 mt-2">
-        <button
-          *ngFor="let section of sections"
-          class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-          (click)="summarizeSection(section)"
-        >
-          {{ section }}
-        </button>
-      </div>
+  <!-- Right Side: Summarized Content -->
+<div class="bg-white p-4 shadow-md rounded-lg">
+  <h2 class="text-lg font-semibold">Summarized Content</h2>
+  <div class="mt-4">
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <button
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        (click)="summarizeSection('Abstract')"
+      >
+        Abstract
+      </button>
+      <button
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        (click)="summarizeSection('Chapter 1')"
+      >
+        Chapter 1
+      </button>
+      <button
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        (click)="summarizeSection('Chapter 2')"
+      >
+        Chapter 2
+      </button>
+      <button
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        (click)="summarizeSection('Chapter 3')"
+      >
+        Chapter 3
+      </button>
+      <button
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        (click)="summarizeSection('Chapter 4')"
+      >
+        Chapter 4
+      </button>
+      <button
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        (click)="summarizeSection('Chapter 5')"
+      >
+        Chapter 5
+      </button>
     </div>
-    <div class="mt-4">
-      <h3 class="text-md font-semibold">Extract Sections</h3>
-      <div class="grid grid-cols-3 gap-2 mt-2">
-        <button
-          *ngFor="let section of sections"
-          class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-          (click)="extractSection(section)"
-        >
-          {{ section }}
-        </button>
-      </div>
+    <div class="text-gray-600">
+      <p *ngIf="!summarizedContent && !isLoading">Select a section to summarize.</p>
+      <p *ngIf="isLoading">Loading...</p>
+      <p *ngIf="summarizedContent">{{ summarizedContent }}</p>
     </div>
   </div>
 </div>

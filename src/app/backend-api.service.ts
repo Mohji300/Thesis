@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -28,8 +28,9 @@ export class BackendApiService {
   /*
    * Search documents in the database.
    */
-  searchDocuments(query: string, top_k: number = 10): Observable<any> {
-    return this.http.post(`${this.apiUrl}/query/search`, { query, top_k });
+  searchDocuments(query: string, limit: number): Observable<any> {
+    const payload = { query, limit };
+    return this.http.post(`${this.getApiUrl()}/query/search`, payload);
   }
 
   /*
@@ -51,5 +52,44 @@ export class BackendApiService {
    */
   assignCluster(text: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/cluster/assign`, { text });
+  }
+
+  /**
+   * Fetch the summary of a document by its ID.
+   * Updated to include the `/query` prefix.
+   */
+  getDocumentSummary(documentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/query/documents/${documentId}/summary`).pipe(
+      catchError((error) => {
+        console.error('Error fetching document summary:', error);
+        return throwError(() => new Error('Failed to fetch document summary.'));
+      })
+    );
+  }
+
+  /**
+   * Fetch the sections of a document by its ID.
+   * Updated to include the `/query` prefix.
+   */
+  getDocumentSections(documentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/query/documents/${documentId}/sections`).pipe(
+      catchError((error) => {
+        console.error('Error fetching document sections:', error);
+        return throwError(() => new Error('Failed to fetch document sections.'));
+      })
+    );
+  }
+
+  /**
+   * Fetch the details (title, authors, abstract) of a document by its ID.
+   * Updated to include the `/query` prefix.
+   */
+  getDocumentDetails(documentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/query/documents/${documentId}/details`).pipe(
+      catchError((error) => {
+        console.error('Error fetching document details:', error);
+        return throwError(() => new Error('Failed to fetch document details.'));
+      })
+    );
   }
 }

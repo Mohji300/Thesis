@@ -39,27 +39,28 @@ export class UploadComponent {
       this.errorMessage = 'Please select a file to upload.';
       return;
     }
-
+  
     if (!this.title.trim()) {
       alert('Please provide a title for the document.');
       return;
     }
-
+  
     if (!this.metadata.trim()) {
       alert('Please provide metadata for the document.');
       return;
     }
-
+  
     this.isLoading = true;
     this.successMessage = '';
     this.errorMessage = '';
-
+  
     const formData = new FormData();
     formData.append('file', this.selectedFile);
     formData.append('title', this.title || 'Untitled');
     formData.append('metadata', this.metadata || '{}');
-
-    this.http.post(`${this.backendApiService.getApiUrl}/upload/document`, formData).subscribe(
+  
+    // Correctly call getApiUrl()
+    this.http.post(`${this.backendApiService.getApiUrl()}/upload/document`, formData).subscribe(
       (response: any) => {
         this.successMessage = `Document uploaded successfully! Document ID: ${response.document_id}`;
         this.isLoading = false;

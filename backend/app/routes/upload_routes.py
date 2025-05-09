@@ -29,17 +29,23 @@ def upload_index():
 def upload_document():
     try:
         if 'file' not in request.files:
+            print("[ERROR] No file part in the request")
             return handle_error('No file part')
 
         file = request.files['file']
         if file.filename == '':
+            print("[ERROR] No selected file")
             return handle_error('No selected file')
 
         if not allowed_file(file.filename):
+            print("[ERROR] Unsupported file type")
             return handle_error('Unsupported file type')
+
+        print("[DEBUG] File received successfully")
 
         pdf_content = parse_pdf(file.read())
         if not pdf_content or len(pdf_content.strip()) < 10:
+            print("[ERROR] Failed to extract meaningful text from PDF")
             return handle_error('Failed to extract meaningful text from PDF')
 
         print(f"[DEBUG] PDF content extracted successfully, length: {len(pdf_content)}")
@@ -48,7 +54,8 @@ def upload_document():
         metadata_raw = request.form.get('metadata', '{}')
         metadata = safe_parse_json(metadata_raw)
 
-        ## Fallback: if text too short, use dummy values
+        print(f"[DEBUG] Title: {title}, Metadata: {metadata}")
+
         if len(pdf_content) < 100:
             print("[WARNING] PDF content too short for models. Using dummy summary/entities/topics.")
             summary = "Summary unavailable due to short content."
@@ -74,7 +81,8 @@ def upload_document():
 
         document = Document(
             title=title,
-            #text=pdf_content,
+            author=metadata.get('author', 'Unknown'),
+            year=metadata.get('year', 0),
             metadata=metadata,
             summary=summary,
             sections=sections,
@@ -83,6 +91,8 @@ def upload_document():
         )
         db.session.add(document)
         db.session.commit()
+
+        print("[DEBUG] Document saved to database successfully")
 
         return jsonify({'message': 'Document uploaded successfully', 'document_id': document.id}), 201
 

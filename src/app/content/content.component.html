@@ -40,31 +40,23 @@
     
     <div class="mt-4 border rounded-lg overflow-hidden">
       <table class="w-full border-collapse table-fixed">
-          <thead>
-            <tr class="bg-gray-300">
-              <th class="p-2 border w-1/2">Title</th>
-              <th class="p-2 border w-1/2">Abstract</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border">
-              <td class="p-4 border">
-                <a [routerLink]="['/summary']" class="text-blue-600 hover:text-blue-800">Artificial Intelligence</a>
-              </td>
-              <td class="p-4 border">
-                Artificial Intelligence (A.I.) aims to automate tasks requiring human intelligence through learning algorithms. It involves phases such as data acquisition, cleaning, model training, testing, and improvement, leading to applications like medical diagnostics and customized hardware solutions.
-              </td>
-            </tr>
-            <tr class="border">
-              <td class="p-4 border">
-                <a [routerLink]="['/summary']" class="text-blue-600 hover:text-blue-800">Artificial Intelligence in Education</a>
-              </td>
-              <td class="p-4 border">
-                Artificial Intelligence (AI) has evolved significantly, impacting various fields, especially education. It integrates knowledge from multiple disciplines and enhances teaching methods for children with special needs (CwSN), making education more inclusive and accessible compared to traditional approaches.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <thead>
+          <tr class="bg-gray-300">
+            <th class="p-2 border w-1/2">Title</th>
+            <th class="p-2 border w-1/2">Abstract</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let document of documents" class="border">
+            <td class="p-4 border">
+              <a [routerLink]="['/summary', document.id]" class="text-blue-600 hover:text-blue-800">{{ document.title }}</a>
+            </td>
+            <td class="p-4 border">
+              {{ document.abstract }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div *ngIf="!isLoading && documents.length === 0 && !errorMessage" class="text-center text-gray-500">

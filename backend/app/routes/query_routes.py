@@ -44,30 +44,106 @@ def search_documents():
 
         results = []
         for doc in documents:
-
-            print(f"Type of doc.embeddings[0]: {type(doc.embeddings[0])}")
-            print(f"Value of doc.embeddings[0]: {doc.embeddings[0]}")
-            doc_embedding = np.array(doc.embeddings[0])
-            if isinstance(doc.embeddings[0], dict):
+            if not doc.embeddings or not isinstance(doc.embeddings, list):
+                logger.warning(f"Document {doc.id} has invalid embeddings.")
                 continue
-            distance = np.linalg.norm(query_embedding - doc_embedding)
-            results.append({'document': doc, 'distance': distance})
+
+            doc_embedding = doc.embeddings[0]  # Get the first embedding
+            if doc_embedding is None or not isinstance(doc_embedding, (list, np.ndarray)):
+                logger.warning(f"Document {doc.id} embedding is None or invalid.")
+                continue
+
+            # Convert to NumPy array if it's a list
+            doc_embedding = np.array(doc_embedding)
+
+            # Calculate the distance between query embedding and document embedding
+            try:
+                distance = np.linalg.norm(query_embedding - doc_embedding)
+                results.append({'document': doc, 'distance': distance})
+            except Exception as e:
+                logger.error(f"Error calculating distance for document {doc.id}: {e}")
+                continue
 
         # Sort results based on distance (lower = more similar)
-        results.sort(key=lambda x: x['distance'])
-        top_results = [result['document'] for result in results[:top_k]]
+        results = sorted(results, key=lambda x: x['distance'])
+        top_results = results[:top_k]
 
-        # Format results for JSON
         response = [{
-            "id": doc.id,
-            "title": doc.title,
-            "summary": doc.summary,
-            "topics": doc.topics
-        } for doc in top_results]
+            "id": result['document'].id,
+            "title": result['document'].title,
+            "abstract": result['document'].summary,
+            "distance": result['distance']
+        } for result in top_results]
 
-        logger.info(f"Returning top {len(top_results)} results.")
-        return jsonify(response), 200
+        return jsonify({"documents": response}), 200
 
     except Exception as e:
         logger.error(f"An error occurred during document search: {e}")
         return jsonify({"error": "An internal server error occurred."}), 500
+    
+    
+@bp.route('/documents/<int:document_id>/details', methods=['GET'])
+def get_document_details(document_id):
+    """
+    Fetch the details (title, authors, abstract) of a document by its ID.
+    """
+    try:
+        document = Document.query.get(document_id)
+        if not document:
+            return jsonify({'error': 'Document not found'}), 404
+
+        return jsonify({
+            'title': getattr(document, 'title', ''),
+            'author': getattr(document, 'author', ''),  # Use getattr to avoid AttributeError if 'authors' is not present
+            'abstract': getattr(document, 'abstract', ''),
+        }), 200
+    except Exception as e:
+        logger.error(f"Error fetching document details for document {document_id}: {e}")
+        return jsonify({'error': 'An internal server error occurred.'}), 500
+
+
+# Endpoint to fetch the summary of a document by its ID
+@bp.route('/documents/<int:document_id>/summary', methods=['GET'])
+def get_document_summary(document_id):
+    """
+    Fetch the summary of a document by its ID.
+    """
+    try:
+        document = Document.query.get(document_id)
+        if not document:
+            return jsonify({'error': 'Document not found'}), 404
+
+        return jsonify({'summary': document.summary}), 200
+    except Exception as e:
+        logger.error(f"Error fetching summary for document {document_id}: {e}")
+        return jsonify({'error': 'An internal server error occurred.'}), 500
+
+
+# Endpoint to fetch the sections of a document by its ID
+@bp.route('/documents/<int:document_id>/sections', methods=['GET'])
+def get_document_sections(document_id):
+    try:
+        document = Document.query.get(document_id)
+        if not document:
+            return jsonify({'error': 'Document not found'}), 404
+
+        # Defensive: Try to load JSON if it's a string
+        sections = getattr(document, 'sections', None)
+        if isinstance(sections, str):
+            import json
+            try:
+                sections = json.loads(sections)
+            except Exception:
+                sections = None
+
+        if not isinstance(sections, dict):
+            logger.error(f"Document {document_id} sections attribute is not a dictionary or is missing.")
+            return jsonify({'error': 'Document sections not available'}), 500
+
+        predefined_sections = ['Abstract', 'Chapter 1', 'Chapter 2', 'Chapter 3', 'Chapter 4', 'Chapter 5']
+        filtered_sections = {key: value for key, value in sections.items() if key in predefined_sections}
+
+        return jsonify({'sections': filtered_sections}), 200
+    except Exception as e:
+        logger.error(f"Error fetching sections for document {document_id}: {e}")
+        return jsonify({'error': 'An internal server error occurred.'}), 500

@@ -1,3 +1,4 @@
 trained-models/
+config.py/
 venv/
 .venv
