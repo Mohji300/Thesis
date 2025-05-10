@@ -3,15 +3,16 @@ from werkzeug.utils import secure_filename
 import os
 from app import db
 from app.models import Document
-from app.utils.pdf_parser import parse_pdf, safe_parse_json
+from app.utils.pdf_parser import parse_pdf
 from app.services.bart_service import summarize_text
 from app.services.bert_service import extract_section
 from app.services.sbert_service import get_sbert_embedding
 from app.services.bertopic_service import get_topics
+import json
+import numpy as np
 
 bp = Blueprint('upload', __name__)
 
-# Configuration
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf'}
 
@@ -45,10 +46,19 @@ def upload_document():
         print(f"[DEBUG] PDF content extracted successfully, length: {len(pdf_content)}")
 
         title = request.form.get('title', 'Untitled')
-        metadata_raw = request.form.get('metadata', '{}')
-        metadata = safe_parse_json(metadata_raw)
 
-        ## Fallback: if text too short, use dummy values
+        # Parse metadata safely
+        metadata = request.form.get('metadata')
+        if metadata:
+            try:
+                metadata = json.loads(metadata)
+            except Exception as e:
+                print(f"[ERROR] Failed to parse metadata: {e}")
+                metadata = {}
+        else:
+            metadata = {}
+
+        # Fallback: if text too short, use dummy values
         if len(pdf_content) < 100:
             print("[WARNING] PDF content too short for models. Using dummy summary/entities/topics.")
             summary = "Summary unavailable due to short content."
@@ -72,14 +82,28 @@ def upload_document():
             topics = get_topics([embedding])
             print("[DEBUG] BERTopic clustering complete.")
 
+        # Convert embedding to list for JSON serialization
+        if isinstance(embedding, np.ndarray):
+            embedding_serializable = embedding.tolist()
+        elif isinstance(embedding, list):
+            embedding_serializable = [e.tolist() if hasattr(e, 'tolist') else e for e in embedding]
+        else:
+            embedding_serializable = embedding
+
+        # Extract authors as a comma-separated string
+        authors = ', '.join(metadata.get('authors', []))
+        year = metadata.get('year', '')
+
         document = Document(
             title=title,
-            #text=pdf_content,
-            metadata=metadata,
+            # text=pdf_content,
+            document_metadata=metadata,
             summary=summary,
             sections=sections,
-            embeddings=[embedding],
-            topics=topics
+            embeddings=embedding_serializable,
+            topics=topics,
+            author=authors,
+            year=year
         )
         db.session.add(document)
         db.session.commit()

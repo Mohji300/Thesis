@@ -53,28 +53,28 @@ export class HomeComponent implements OnInit, OnDestroy {
   } */
 
       //actuall logic for searching, i comment lang if need mag test
-    handleSearch() {
-      if (this.searchQuery.trim()) {
-        this.isLoading = true;
-        this.errorMessage = '';
-  
-        // Call the backend to validate the query
-        this.backendApiService.searchDocuments(this.searchQuery, 10).subscribe(
-          (response) => {
-            if (response.documents && response.documents.length > 0) {
-              // Navigate to the ContentComponent if documents are found
-              this.router.navigate(['/content'], { queryParams: { query: this.searchQuery } });
-            } else {
-              // Show an alert if no documents are found
-              alert('No documents found for the given query. Please try a different search term.');
+      handleSearch() {
+        if (this.searchQuery.trim()) {
+          this.isLoading = true;
+          this.errorMessage = '';
+      
+          // Call the backend to validate the query
+          this.backendApiService.searchDocuments(this.searchQuery, 10).subscribe(
+            (response) => {
+              if (response.documents && response.documents.length > 0) {
+                // Navigate to the ContentComponent if documents are found
+                this.router.navigate(['/content'], { queryParams: { query: this.searchQuery } });
+              } else {
+                // Show an alert if no documents are found
+                alert('No documents found for the given query. Please try a different search term.');
+              }
+              this.isLoading = false;
+            },
+            (error) => {
+              console.error('Error validating search query:', error);
+              this.errorMessage = 'Failed to validate the search query. Please try again.';
+              this.isLoading = false;
             }
-            this.isLoading = false;
-          },
-          (error) => {
-            console.error('Error validating search query:', error);
-            this.errorMessage = 'Failed to validate the search query. Please try again.';
-            this.isLoading = false;
-          }
         );
       } else {
         // Show an alert if the search field is empty
