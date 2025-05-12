@@ -84,12 +84,12 @@ export class BackendApiService {
    * Fetch the details (title, authors, abstract) of a document by its ID.
    * Updated to include the `/query` prefix.
    */
-  getDocumentDetails(documentId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/query/documents/${documentId}/details`).pipe(
-      catchError((error) => {
-        console.error('Error fetching document details:', error);
-        return throwError(() => new Error('Failed to fetch document details.'));
-      })
-    );
-  }
+getDocumentDetails(documentId: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/query/documents/${documentId}/details`).pipe(
+    catchError((error) => {
+      console.error('Error fetching document details:', error);
+      return throwError(() => new Error('Failed to fetch document details.'));
+    })
+  );
+}
 }

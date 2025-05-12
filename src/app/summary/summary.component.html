@@ -13,13 +13,13 @@
     <h2 class="text-lg font-semibold">Document Details</h2>
     <div class="mt-4">
       <h3 class="text-md font-semibold">Title</h3>
-      <p class="text-gray-600">{{ documentTitle }}</p>
+      <p class="text-gray-600">{{ title }}</p>
 
       <h3 class="text-md font-semibold mt-4">Authors</h3>
-      <p class="text-gray-600">{{ documentAuthors }}</p>
+      <p class="text-gray-600">{{ author }}</p>
 
       <h3 class="text-md font-semibold mt-4">Abstract</h3>
-      <p class="text-gray-600">{{ documentAbstract }}</p>
+      <p class="text-gray-600">{{ abstract }}</p>
     </div>
   </div>
 
@@ -28,42 +28,15 @@
   <h2 class="text-lg font-semibold">Summarized Content</h2>
   <div class="mt-4">
     <div class="grid grid-cols-2 gap-2 mb-4">
-      <button
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        (click)="summarizeSection('Abstract')"
-      >
-        Abstract
-      </button>
-      <button
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        (click)="summarizeSection('Chapter 1')"
-      >
-        Chapter 1
-      </button>
-      <button
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        (click)="summarizeSection('Chapter 2')"
-      >
-        Chapter 2
-      </button>
-      <button
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        (click)="summarizeSection('Chapter 3')"
-      >
-        Chapter 3
-      </button>
-      <button
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        (click)="summarizeSection('Chapter 4')"
-      >
-        Chapter 4
-      </button>
-      <button
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        (click)="summarizeSection('Chapter 5')"
-      >
-        Chapter 5
-      </button>
+<div class="grid grid-cols-2 gap-2 mb-4">
+  <button
+    *ngFor="let section of sections"
+    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+    (click)="summarizeSection(section)"
+  >
+    {{ section }}
+  </button>
+</div>
     </div>
     <div class="text-gray-600">
       <p *ngIf="!summarizedContent && !isLoading">Select a section to summarize.</p>

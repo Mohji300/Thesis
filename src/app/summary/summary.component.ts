@@ -21,9 +21,9 @@ export class SummaryComponent implements OnInit, OnDestroy {
   errorMessage: string = ''; // Error message for API failures
 
   // New properties for title, authors, and abstract
-  documentTitle: string = '';
-  documentAuthors: string = '';
-  documentAbstract: string = '';
+  title: string = '';
+  author: string = '';
+  abstract: string = '';
 
   constructor(private backendApiService: BackendApiService, private route: ActivatedRoute) {}
 
@@ -59,9 +59,9 @@ export class SummaryComponent implements OnInit, OnDestroy {
   fetchDocumentDetails(documentId: number) {
     this.backendApiService.getDocumentDetails(documentId).subscribe(
       (response) => {
-        this.documentTitle = response.title;
-        this.documentAuthors = response.authors;
-        this.documentAbstract = response.abstract;
+        this.title = response.title;
+        this.author = response.author;
+        this.abstract = response.abstract;
         console.log('Fetched document details:', response);
       },
       (error) => {
