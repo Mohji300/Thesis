@@ -15,10 +15,13 @@ import { BackendApiService } from '../backend-api.service';
 export class ContentComponent implements OnInit, OnDestroy {
   currentDateTime: string = '';
   private timeInterval: any;
-  documents: { title: string; abstract: string; id: number }[] = []; // Holds the list of documents
+  documents: { title: string; abstract: string; id: number; similarity: number }[] = []; // Holds the list of documents
   isLoading: boolean = false; // Loading state for API calls
   errorMessage: string = ''; // Error message for API failures
   searchQuery: string = ''; // Holds the search query
+  expandedAbstracts: { [id: number]: boolean } = {}; // Track expanded abstracts
+  abstractPreviewLimit: number = 150; // Number of chars to show in preview
+  insights: { [id: number]: string } = {};
 
   constructor(private backendApiService: BackendApiService, private router: Router, private route: ActivatedRoute) {}
 
@@ -51,16 +54,25 @@ export class ContentComponent implements OnInit, OnDestroy {
   /**
    * Fetches the list of documents based on the search query.
    */
-  fetchDocuments() {
+  async fetchDocuments() {
     this.isLoading = true;
     this.errorMessage = '';
+
     this.backendApiService.searchDocuments(this.searchQuery, 10).subscribe(
-      (response) => {
+      async (response) => {
         if (response.documents && response.documents.length > 0) {
-          this.documents = response.documents;
-          console.log('Fetched documents:', this.documents);
+          // Cosine similarity is already in [-1, 1], scale to [0, 1] for percentage
+            this.documents = response.documents.map((doc: any) => ({
+              ...doc,
+              // similarity is already in [-1, 1], but backend now ensures it's >= 0.2
+              similarity: doc.similarity !== undefined ? Math.pow(((doc.similarity + 1) / 2), 0.6) : 0
+            }));
+          this.expandedAbstracts = {};
+          this.insights = {};
+          for (const doc of this.documents) {
+            await this.generateInsightFromBackendAsync(doc, this.searchQuery);
+          }
         } else {
-          // Show a "Query not found" message if no documents are returned
           alert('Query not found. Please try a different search term.');
         }
         this.isLoading = false;
@@ -73,10 +85,39 @@ export class ContentComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Generate insight using backend summarizer
+  // Helper to wrap the observable in a promise for sequential execution
+  generateInsightFromBackendAsync(document: any, query: string): Promise<void> {
+    const prompt = `
+Given the following document abstract and the user's search query, generate a concise insight explaining how this document is relevant to the query.
+
+Document Abstract: ${document.abstract}
+User Query: ${query}
+Insight:
+    `;
+    this.insights[document.id] = 'Generating insight...';
+    return new Promise((resolve) => {
+      this.backendApiService.generateSummary(prompt).subscribe(
+        (response) => {
+          this.insights[document.id] = response.summary;
+          resolve();
+        },
+        (error) => {
+          this.insights[document.id] = 'Failed to generate insight.';
+          resolve();
+        }
+      );
+    });
+  }
+
   /**
    * Navigates to the summary page for the selected document.
    */
   navigateToSummary(documentId: number) {
     this.router.navigate(['/summary', documentId]);
+  }
+
+  toggleAbstract(id: number) {
+    this.expandedAbstracts[id] = !this.expandedAbstracts[id];
   }
 }

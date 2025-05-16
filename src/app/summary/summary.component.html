@@ -1,5 +1,5 @@
 <!-- summary.component.html -->
-<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-gray-200">
+<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-white">
   <div class="flex gap-2 items-center">
     <span class="text-lg">Bicol University</span>
     <span class="text-lg mx-2">|</span>
@@ -7,9 +7,14 @@
   </div>
 </header>
 
-<div class="p-4 bg-gray-300 min-h-screen grid grid-cols-2 gap-4">
+<!-- <div *ngIf="summaryLatency > 0" class="text-sm text-gray-600 mt-2">
+  Summary latency: {{ summaryLatency }} ms
+</div> -->
+
+<!-- Page content below header (assumes header is ~80px tall) -->
+<div class="p-4 bg-white h-[calc(105vh-110px)] grid grid-cols-2 gap-4 overflow-hidden">
   <!-- Left Side: Title, Authors, and Abstract -->
-  <div class="bg-white p-4 shadow-md rounded-lg">
+  <div class="bg-white p-4 shadow-md rounded-lg overflow-y-auto">
     <h2 class="text-lg font-semibold">Document Details</h2>
     <div class="mt-4">
       <h3 class="text-md font-semibold">Title</h3>
@@ -18,30 +23,97 @@
       <h3 class="text-md font-semibold mt-4">Authors</h3>
       <p class="text-gray-600">{{ author }}</p>
 
-      <h3 class="text-md font-semibold mt-4">Abstract</h3>
-      <p class="text-gray-600">{{ abstract }}</p>
+<h3 class="text-md font-semibold mt-4">Section</h3>
+<div class="mb-2">
+  <select
+    class="border rounded px-2 py-1"
+    [(ngModel)]="leftSelectedSection"
+    (change)="onLeftSectionChange()"
+  >
+    <option value="abstract">Abstract</option>
+    <option *ngFor="let section of sections" [value]="section">{{ section }}</option>
+  </select>
+</div>
+
+<div
+  #abstractContainer
+  class="text-gray-600 pr-2"
+  [ngStyle]="{
+    'max-height': showFullAbstract ? 'none' : '1000px',
+    'overflow-y': !showFullAbstract && getLeftSectionContent().length > abstractPreviewLimit ? 'auto' : 'visible'
+  }"
+  style="transition: max-height 0.2s;"
+>
+  {{ showFullAbstract || !getLeftSectionContent() || getLeftSectionContent().length <= abstractPreviewLimit
+      ? getLeftSectionContent()
+      : (getLeftSectionContent() | slice:0:abstractPreviewLimit) + '...' }}
+  <button
+    *ngIf="getLeftSectionContent() && getLeftSectionContent().length > abstractPreviewLimit && !showFullAbstract"
+    class="text-blue-500 underline ml-2"
+    (click)="showFullAbstract = true"
+    style="background: none; border: none; padding: 0; font: inherit; cursor: pointer;"
+  >
+    Read more
+  </button>
+  <button
+    *ngIf="getLeftSectionContent() && getLeftSectionContent().length > abstractPreviewLimit && showFullAbstract"
+    class="text-blue-500 underline ml-2"
+    (click)="showFullAbstract = false"
+    style="background: none; border: none; padding: 0; font: inherit; cursor: pointer;"
+  >
+    Show less
+  </button>
+</div>
     </div>
   </div>
 
   <!-- Right Side: Summarized Content -->
-<div class="bg-white p-4 shadow-md rounded-lg">
-  <h2 class="text-lg font-semibold">Summarized Content</h2>
-  <div class="mt-4">
-    <div class="grid grid-cols-2 gap-2 mb-4">
-<div class="grid grid-cols-2 gap-2 mb-4">
-  <button
-    *ngFor="let section of sections"
-    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-    (click)="summarizeSection(section)"
-  >
-    {{ section }}
-  </button>
-</div>
-    </div>
-    <div class="text-gray-600">
-      <p *ngIf="!summarizedContent && !isLoading">Select a section to summarize.</p>
-      <p *ngIf="isLoading">Loading...</p>
-      <p *ngIf="summarizedContent">{{ summarizedContent }}</p>
+  <div class="bg-white p-4 shadow-md rounded-lg flex flex-col overflow-hidden">
+    <h2 class="text-lg font-semibold">Summarized Content</h2>
+    <div class="mt-4 flex flex-col gap-4 flex-1 overflow-hidden">
+      <!-- Summary Preview Field -->
+      <div
+        class="w-full border rounded p-2 text-gray-700 bg-gray-100 min-h-[290px] max-h-[340px] overflow-y-auto"
+      >
+        <ng-container *ngIf="isLoading; else summaryContent">
+          <div class="loading-container">
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+          </div>
+        </ng-container>
+        <ng-template #summaryContent>
+          <span class="whitespace-pre-line w-full block">{{ summarizedContent }}</span>
+        </ng-template>
+      </div>
+
+      <!-- Section Buttons -->
+      <div>Select a section to view summarized content</div>
+      <div class="grid grid-cols-2 gap-2 mb-2">
+        <ng-container *ngFor="let section of sections">
+          <button
+            [ngClass]="{
+              'bg-blue-700': selectedSection === section,
+              'bg-blue-500': selectedSection !== section
+            }"
+            class="text-white px-4 py-2 rounded hover:bg-blue-700"
+            (click)="selectSection(section)"
+            *ngIf="section !== 'abstract' && section !== 'review of related literature'"
+          >
+            {{ section }}
+          </button>
+        </ng-container>
+        <button
+          [ngClass]="{
+            'bg-green-700': selectedSection === 'whole_paper',
+            'bg-green-500': selectedSection !== 'whole_paper'
+          }"
+          class="text-white px-4 py-2 rounded hover:bg-green-700"
+          (click)="selectSection('whole_paper')"
+        >
+          Summary of Whole Paper
+        </button>
+      </div>
     </div>
   </div>
 </div>

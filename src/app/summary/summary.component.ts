@@ -2,13 +2,15 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BackendApiService } from '../backend-api.service';
+import { ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-summary',
   standalone: true,
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.css',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
 })
 export class SummaryComponent implements OnInit, OnDestroy {
   currentDateTime: string = '';
@@ -19,6 +21,13 @@ export class SummaryComponent implements OnInit, OnDestroy {
   summarizedContent: string = ''; // Holds the summarized content of the selected section
   isLoading: boolean = false; // Loading state for API calls
   errorMessage: string = ''; // Error message for API failures
+  summaryPreviewLimit = 350;
+  showFullSummary = false;
+  abstractPreviewLimit = 1250;
+  showFullAbstract = false;
+  summaryStartTime: number = 0;
+  summaryLatency: number = 0; // in milliseconds
+  leftSelectedSection: string = 'abstract';
 
   // New properties for title, authors, and abstract
   title: string = '';
@@ -26,6 +35,13 @@ export class SummaryComponent implements OnInit, OnDestroy {
   abstract: string = '';
 
   constructor(private backendApiService: BackendApiService, private route: ActivatedRoute) {}
+
+  @ViewChild('abstractContainer') abstractContainer!: ElementRef<HTMLDivElement>;
+isAbstractOverflowing = false;
+
+ngAfterViewInit() {
+  setTimeout(() => this.checkAbstractOverflow(), 0);
+}
 
   ngOnInit() {
     this.updateCurrentTime();
@@ -43,6 +59,17 @@ export class SummaryComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngOnChanges() {
+  this.checkAbstractOverflow();
+}
+
+checkAbstractOverflow() {
+  if (this.abstractContainer) {
+    const el = this.abstractContainer.nativeElement;
+    this.isAbstractOverflowing = el.scrollHeight > el.clientHeight;
+  }
+}
+
   ngOnDestroy() {
     if (this.timeInterval) {
       clearInterval(this.timeInterval);
@@ -53,23 +80,34 @@ export class SummaryComponent implements OnInit, OnDestroy {
     this.currentDateTime = new Date().toLocaleString();
   }
 
+  onLeftSectionChange() {
+  this.showFullAbstract = false;
+  setTimeout(() => this.checkAbstractOverflow(), 0);
+}
+
+getLeftSectionContent(): string {
+  if (this.leftSelectedSection === 'abstract') {
+    return this.abstract;
+  }
+  return this.sectionContent[this.leftSelectedSection] || '';
+}
+
   /**
    * Fetches the document details (title, authors, abstract) from the backend.
    */
-  fetchDocumentDetails(documentId: number) {
-    this.backendApiService.getDocumentDetails(documentId).subscribe(
-      (response) => {
-        this.title = response.title;
-        this.author = response.author;
-        this.abstract = response.abstract;
-        console.log('Fetched document details:', response);
-      },
-      (error) => {
-        console.error('Error fetching document details:', error);
-        this.errorMessage = 'Failed to fetch document details. Please try again.';
-      }
-    );
-  }
+fetchDocumentDetails(documentId: number) {
+  this.backendApiService.getDocumentDetails(documentId).subscribe(
+    (response) => {
+      this.title = response.title;
+      this.author = response.author;
+      this.abstract = response.abstract;
+      setTimeout(() => this.checkAbstractOverflow(), 0); // Wait for DOM update
+    },
+    (error) => {
+      this.errorMessage = 'Failed to fetch document details. Please try again.';
+    }
+  );
+}
 
   /**
    * Fetches the sections and their content from the backend.
@@ -92,32 +130,92 @@ export class SummaryComponent implements OnInit, OnDestroy {
       }
     );
   }
+// handles read more button
+  getSummaryPreview(): string {
+  if (!this.summarizedContent) return '';
+  if (this.showFullSummary || this.summarizedContent.length <= this.summaryPreviewLimit) {
+    return this.summarizedContent;
+  }
+  return this.summarizedContent.slice(0, this.summaryPreviewLimit) + '...';
+}
+
+selectSection(section: string) {
+  this.selectedSection = section;
+  if (section === 'whole_paper') {
+    this.summarizeWholePaper();
+  } else {
+    this.summarizeSection(section);
+  }
+}
+
 
   /**
    * Handles summarizing a specific section.
    */
-  summarizeSection(section: string) {
-    this.selectedSection = section;
-    const sectionText = this.sectionContent[section]; // Get the content of the selected section
-    if (!sectionText) {
-      console.error('No content found for the selected section.');
-      this.errorMessage = 'No content found for the selected section.';
-      return;
-    }
+summarizeSection(section: string) {
+  this.selectedSection = section;
+  this.isLoading = true;
+  this.showFullSummary = false;
+  this.summaryLatency = 0;
+  this.summaryStartTime = Date.now(); // Start timer
 
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.backendApiService.generateSummary(sectionText).subscribe(
-      (response) => {
-        this.summarizedContent = response.summary; // Store the summarized content
-        console.log(`Summarized section (${section}):`, this.summarizedContent);
-        this.isLoading = false;
-      },
-      (error) => {
-        console.error('Error summarizing section:', error);
-        this.errorMessage = 'Failed to summarize the section. Please try again.';
-        this.isLoading = false;
-      }
-    );
+  const sectionText = this.sectionContent[section];
+  if (!sectionText) {
+    console.error('No content found for the selected section.');
+    this.errorMessage = 'No content found for the selected section.';
+    this.isLoading = false;
+    return;
   }
+
+  this.errorMessage = '';
+  this.backendApiService.generateSummary(sectionText).subscribe(
+    (response) => {
+      this.summarizedContent = response.summary;
+      this.isLoading = false;
+      this.summaryLatency = Date.now() - this.summaryStartTime; // End timer
+      console.log(`Summary latency: ${this.summaryLatency} ms`);
+    },
+    (error) => {
+      console.error('Error summarizing section:', error);
+      this.errorMessage = 'Failed to summarize the section. Please try again.';
+      this.isLoading = false;
+      this.summaryLatency = Date.now() - this.summaryStartTime; // End timer even on error
+    }
+  );
+}
+summarizeWholePaper() {
+  this.isLoading = true;
+  this.showFullSummary = false;
+  this.summaryLatency = 0;
+  this.summaryStartTime = Date.now();
+
+  // Combine all section contents except abstract and review of related literature
+  const combinedText = this.sections
+    .filter(
+      (sec) =>
+        sec !== 'abstract' && sec !== 'review of related literature'
+    )
+    .map((sec) => this.sectionContent[sec])
+    .join('\n\n');
+
+  if (!combinedText) {
+    this.errorMessage = 'No content found for the whole paper.';
+    this.isLoading = false;
+    return;
+  }
+
+  this.errorMessage = '';
+  this.backendApiService.generateSummary(combinedText).subscribe(
+    (response) => {
+      this.summarizedContent = response.summary;
+      this.isLoading = false;
+      this.summaryLatency = Date.now() - this.summaryStartTime;
+    },
+    (error) => {
+      this.errorMessage = 'Failed to summarize the whole paper. Please try again.';
+      this.isLoading = false;
+      this.summaryLatency = Date.now() - this.summaryStartTime;
+    }
+  );
+}
 }

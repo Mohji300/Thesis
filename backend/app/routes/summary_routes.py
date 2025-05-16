@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.bart_service import summarize_text
+from app.services.bart_service import summarize_long_text
 import logging
 
 bp = Blueprint('summary', __name__)
@@ -25,7 +25,8 @@ def generate_summary():
         text = data['text']
         logging.info(f"Text to summarize: {text}")
         
-        summary = summarize_text(text)
+        # Use summarize_long_text for better contextual summaries
+        summary = summarize_long_text(text)
         logging.info(f"Generated summary: {summary}")
 
         return jsonify({'summary': summary}), 200

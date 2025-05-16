@@ -1,63 +1,61 @@
 <!-- content.component.html -->
-<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-gray-200">
+<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-white">
   <!-- University name and DateTime on the left -->
   <div class="flex gap-2 items-center">
       <span class="text-lg">Bicol University</span>
       <span class="text-lg mx-2">|</span>
       <span class="text-base font-light">{{ currentDateTime }}</span>
   </div>
-
-  <!-- Search bar on the right -->
-  <div class="flex-none w-96 relative">
-      <input 
-          id="search" 
-          type="text" 
-          class="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300" 
-          placeholder="Search...">
-      <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-          🔍
-      </button>
-  </div>
 </header>
 
-<div class="p-4 bg-gray-300 min-h-screen">
-  <div class="mt-4 p-4 bg-white shadow-md rounded-lg">
-    <h2 class="text-lg font-semibold">Results</h2>
-    
-    <div class="flex items-center space-x-2 mt-2">
-      <select class="border p-1 rounded">
-        <option>Year</option>
-      </select>
-      <label class="inline-flex items-center">
-        <input type="checkbox" checked class="form-checkbox">
-        <span class="ml-1">CS</span>
-      </label>
-      <label class="inline-flex items-center">
-        <input type="checkbox" checked class="form-checkbox">
-        <span class="ml-1">IT</span>
-      </label>
-    </div>
-    
-    <div class="mt-4 border rounded-lg overflow-hidden">
-      <table class="w-full border-collapse table-fixed">
+<!-- Add this where you want to show the latency, e.g., below the Results heading -->
+<!-- <div *ngIf="searchLatency > 0" class="text-sm text-gray-600 mt-2">
+  Search latency: {{ searchLatency }} ms
+</div> -->
+
+<!-- Loading Screen Overlay -->
+<div *ngIf="isLoading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
+  <div class="flex flex-col items-center">
+    <div class="loader mb-4"></div>
+    <div class="text-blue-600 font-semibold">Generating insights, please wait...</div>
+  </div>
+</div>
+
+      <div class="p-4 bg-white min-h-screen">
+        <div class="mt-4 p-4 bg-white shadow-md rounded-lg">
+          <h2 class="text-lg font-semibold">Results</h2>
+          
+      <div class="mt-4 border border-black rounded-lg overflow-hidden">
+      <table class="w-full border-collapse table-fixed border border-black">
         <thead>
-          <tr class="bg-gray-300">
-            <th class="p-2 border w-1/2">Title</th>
-            <th class="p-2 border w-1/2">Abstract</th>
+          <tr class="bg-white">
+            <th class="p-2 border border-black w-1/3">Title</th>
+            <th class="p-2 border border-black w-1/3">Insights</th>
+                      <th class="p-2 border border-black w-1/3">
+            Similarity Score
+            <span title="How closely this document matches your query. 100% means highly relevant."></span>
+          </th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let document of documents" class="border">
-            <td class="p-4 border">
+          <tr *ngFor="let document of documents" class="border border-black">
+            <td class="p-4 border border-black">
               <a [routerLink]="['/summary', document.id]" class="text-blue-600 hover:text-blue-800">{{ document.title }}</a>
             </td>
-            <td class="p-4 border">
-              {{ document.abstract }}
+            <td class="p-4 border border-black">
+              {{ insights[document.id] }}
+            </td>
+            <td class="p-4 border border-black text-center"
+                [ngClass]="{
+                  'bg-green-200 font-bold': document.similarity >= 0.8,
+                  'bg-yellow-100': document.similarity >= 0.6 && document.similarity < 0.8
+                }">
+              {{ (document.similarity * 100) | number:'1.0-2' }}%
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
+      </div>
 
     <div *ngIf="!isLoading && documents.length === 0 && !errorMessage" class="text-center text-gray-500">
       Query not found. Please try a different search term.

@@ -5,7 +5,6 @@ from app.services.sbert_service import get_sbert_embedding
 import numpy as np
 import logging
 import json
-from app.models import Document
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +24,8 @@ def search_documents():
     try:
         data = request.get_json()
         query = data.get('query', '')
-        top_k = data.get('top_k', 1)
+        top_k = data.get('top_k', 10)  # Default to 10 if not provided
+        min_similarity = -1.0  # Remove similarity threshold
 
         if not query:
             logger.warning("Query text is missing in the request.")
@@ -33,59 +33,49 @@ def search_documents():
 
         logger.info(f"Received query: {query}, top_k: {top_k}")
 
-        # Get query embedding
+        # Get and normalize query embedding
         query_embedding = np.array(get_sbert_embedding(query))
-        logger.info("Query embedding generated successfully.")
+        query_norm = np.linalg.norm(query_embedding)
+        if query_norm == 0:
+            logger.warning("Query embedding norm is zero.")
+            return jsonify({"documents": []}), 200
+        query_embedding = query_embedding / query_norm
 
-        # Retrieve all documents
-        documents = Document.query.all()
-
-        if not documents:
-            logger.warning("No documents found in the database.")
-            return jsonify({"error": "No documents found in database."}), 404
-
+        # Stream documents to save memory
         results = []
-        for doc in documents:
+        for doc in Document.query.yield_per(10):  # Use yield_per for memory efficiency
             embeddings = doc.embeddings
-            # Convert JSON string to Python list
             if isinstance(embeddings, str):
                 try:
                     embeddings = json.loads(embeddings)
                 except Exception:
-                    logger.warning(f"Document {doc.id} embeddings could not be parsed from JSON.")
                     continue
 
             if not embeddings or not isinstance(embeddings, list):
-                logger.warning(f"Document {doc.id} has invalid embeddings.")
                 continue
 
-            doc_embedding = embeddings[0]
-            if doc_embedding is None or not isinstance(doc_embedding, (list, np.ndarray)):
-                logger.warning(f"Document {doc.id} embedding is None or invalid.")
+            doc_embedding = np.array(embeddings[0])
+            doc_norm = np.linalg.norm(doc_embedding)
+            if doc_norm == 0:
                 continue
+            doc_embedding = doc_embedding / doc_norm
 
-            doc_embedding = np.array(doc_embedding)
+            # Cosine similarity (dot product of normalized vectors)
+            boost = 0.1 if any(kw in doc.title.lower() for kw in query.lower().split()) else 0
+            similarity = float(np.dot(query_embedding, doc_embedding)) + boost
+            # No similarity filter
 
-            # Calculate the distance between query embedding and document embedding
-            try:
-                distance = np.linalg.norm(query_embedding - doc_embedding)
-                results.append({'document': doc, 'distance': distance})
-            except Exception as e:
-                logger.error(f"Error calculating distance for document {doc.id}: {e}")
-                continue
+            results.append({
+                "id": doc.id,
+                "title": doc.title,
+                "abstract": doc.summary,
+                "similarity": similarity
+            })
 
-        # Sort results based on distance (lower = more similar)
-        results = sorted(results, key=lambda x: x['distance'])
-        top_results = results[:top_k]
+        # Sort and limit results to top 10
+        results = sorted(results, key=lambda x: x['similarity'], reverse=True)[:10]
 
-        response = [{
-            "id": result['document'].id,
-            "title": result['document'].title,
-            "abstract": result['document'].summary,
-            "distance": result['distance']
-        } for result in top_results]
-
-        return jsonify({"documents": response}), 200
+        return jsonify({"documents": results}), 200
 
     except Exception as e:
         logger.error(f"An error occurred during document search: {e}")
@@ -107,7 +97,6 @@ def get_document_summary(document_id):
         logger.error(f"Error fetching summary for document {document_id}: {e}")
         return jsonify({'error': 'An internal server error occurred.'}), 500
 
-
 # Endpoint to fetch the sections of a document by its ID
 @bp.route('/documents/<int:document_id>/sections', methods=['GET'])
 def get_document_sections(document_id):
@@ -116,7 +105,6 @@ def get_document_sections(document_id):
         return jsonify({'error': 'Document not found'}), 404
 
     # If sections are stored as a JSON string, load them
-    import json
     try:
         sections = document.sections
         if isinstance(sections, str):
@@ -125,7 +113,7 @@ def get_document_sections(document_id):
         sections = {}
 
     return jsonify({'sections': sections})
-    
+
 @bp.route('/documents/<int:document_id>/details', methods=['GET'])
 def get_document_details(document_id):
     """
