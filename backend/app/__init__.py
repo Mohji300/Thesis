@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
-from .config import Config  # Use your original config
+from .config import Config 
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -27,7 +27,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     # Enable CORS for frontend
-    CORS(app)
+    CORS(app, origins=["http://localhost:4200"], supports_credentials=True)
 
     # Initialize database
     db.init_app(app)
@@ -42,13 +42,15 @@ def create_app(config_class=Config):
     print("Models loaded successfully!")
 
     # ==== Register Blueprints ====
-    from .routes import upload_routes, query_routes, summary_routes, extract_routes, cluster_routes
+    from .routes import (upload_routes, query_routes, summary_routes, extract_routes, cluster_routes, register_routes, login_routes)
 
     app.register_blueprint(upload_routes.bp, url_prefix="/upload")
     app.register_blueprint(query_routes.bp, url_prefix="/query")
     app.register_blueprint(summary_routes.bp, url_prefix="/summary")
     app.register_blueprint(extract_routes.bp, url_prefix="/extract")
     app.register_blueprint(cluster_routes.bp, url_prefix="/cluster")
+    app.register_blueprint(register_routes.bp, url_prefix="/register")
+    app.register_blueprint(login_routes.bp, url_prefix="/login")
 
     # Health check
     @app.route("/", methods=["GET"])

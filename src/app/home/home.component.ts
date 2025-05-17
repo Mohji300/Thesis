@@ -41,8 +41,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentDateTime = new Date().toLocaleString();
   }
 
+  goToUpload() {
+    this.router.navigate(['/upload']);
+  }
+
   //logic for testing direkta pupunta sa content page alisin lang yung comment
-/*   handleSearch() {
+  handleSearch() {
     if (this.searchQuery.trim()) {
       // Navigate to the ContentComponent with the search query as a query parameter
       this.router.navigate(['/content'], { queryParams: { query: this.searchQuery } });
@@ -50,9 +54,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       // Show an alert or a field pop-up indicating the search field is empty
       alert('The search field is empty. Please enter a search query.');
     }
-  } */
+  }
 
-      //actuall logic for searching, i comment lang if need mag test
+/*       //actuall logic for searching, i comment lang if need mag test
       handleSearch() {
         if (this.searchQuery.trim()) {
           this.isLoading = true;
@@ -80,5 +84,5 @@ export class HomeComponent implements OnInit, OnDestroy {
           // Show an alert if the search field is empty
           alert('The search field is empty. Please enter a search query.');
         }
-      }
+      } */
     }

@@ -1,0 +1,49 @@
+<header class="flex justify-between w-full border-b border-white px-8 py-4 gap-8 text-black bg-white">
+  <div class="flex gap-2 items-center">
+    <span class="text-lg">Bicol University</span>
+    <span class="text-lg mx-2">|</span>
+    <button (click)="goToHome()" class="ml-4 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+      Home
+    </button>
+  </div>
+</header>
+
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+    <h2 class="text-2xl font-bold text-center mb-6 text-blue-700">Create Your Account</h2>
+    <form (ngSubmit)="register()" class="space-y-5">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+        <input
+          id="username"
+          [(ngModel)]="username"
+          name="username"
+          class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          required
+          autocomplete="username"
+        />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input
+          id="password"
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          required
+          autocomplete="new-password"
+        />
+      </div>
+      <button
+        type="submit"
+        class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition"
+      >
+        Create Account
+      </button>
+      <div *ngIf="errorMessage" class="text-red-600 text-center mt-2">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="text-green-600 text-center mt-2">{{ successMessage }}</div>
+    </form>
+  </div>
+</div>
+

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { BackendApiService } from '../backend-api.service';
 @Component({
   selector: 'app-upload',
@@ -18,7 +19,11 @@ export class UploadComponent {
   successMessage: string = ''; // Success message
   errorMessage: string = ''; // Error message
 
-  constructor(private backendApiService: BackendApiService, private http: HttpClient) {}
+  constructor(
+    private backendApiService: BackendApiService,
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   /**
    * Handles file selection.
@@ -73,6 +78,10 @@ export class UploadComponent {
       }
     );
   }
+
+  goToHome() {
+  this.router.navigate(['/']);
+}
 
   /**
    * Resets the form after a successful upload.
