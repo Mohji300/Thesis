@@ -79,8 +79,14 @@ export class UploadComponent {
     );
   }
 
-  goToHome() {
+goToHome() {
+  localStorage.removeItem('auth_token');
   this.router.navigate(['/']);
+}
+
+logout() {
+  localStorage.removeItem('auth_token');
+  this.router.navigate(['/login']);
 }
 
   /**
