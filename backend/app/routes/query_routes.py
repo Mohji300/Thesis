@@ -24,14 +24,13 @@ def search_documents():
     try:
         data = request.get_json()
         query = data.get('query', '')
-        top_k = data.get('top_k', 10)  # Default to 10 if not provided
-        min_similarity = -1.0  # Remove similarity threshold
+        min_similarity = 0.5  # Remove similarity threshold
 
         if not query:
             logger.warning("Query text is missing in the request.")
             return jsonify({"error": "Query text is required."}), 400
 
-        logger.info(f"Received query: {query}, top_k: {top_k}")
+        logger.info(f"Received query: {query}")
 
         # Get and normalize query embedding
         query_embedding = np.array(get_sbert_embedding(query))
@@ -73,7 +72,9 @@ def search_documents():
             })
 
         # Sort and limit results to top 10
-        results = sorted(results, key=lambda x: x['similarity'], reverse=True)[:10]
+        # Sort all results by similarity (descending)
+        results = sorted(results, key=lambda x: x['similarity']>= 0.2)
+
 
         return jsonify({"documents": results}), 200
 

@@ -18,6 +18,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   searchQuery: string = '';
   isLoading: boolean = false; // Loading state for API calls
   errorMessage: string = ''; // Error message for API failures
+  selectedMode = 'Standard';
+suggestions = [
+  'How does climate change impact biodiversity?',
+  'Why are aging Covid patients more susceptible to severe symptoms?'
+];
 
   constructor(private router: Router, private backendApiService: BackendApiService) {}
 

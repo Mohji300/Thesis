@@ -1,9 +1,21 @@
 <!-- summary.component.html -->
-<header class="flex justify-between w-full border-b px-8 py-4 gap-8 text-black bg-white">
+<header class="flex justify-between w-full border-b border-gray-300 px-8 py-4 gap-8 text-black bg-white">
   <div class="flex gap-2 items-center">
-    <span class="text-lg">Bicol University</span>
-    <span class="text-lg mx-2">|</span>
-    <span class="text-base font-light">{{ currentDateTime }}</span>
+    <img src="assets/logo1.png" alt="logo" class="h-8 w-8 object-contain" />
+    <span class="text-lg relative group cursor-pointer">
+      SBDRS
+      <span
+        class="absolute mt-2 w-80 bg-white text-black text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center"
+        style="top:100%; left:-110px;"
+      >
+        Semantic Based Document Retrieval System
+      </span>
+    </span>
+  </div>
+  <div class="flex-1 flex justify-center items-center">
+    <span class="font-bold text-xl flex items-center gap-2">
+      Summarry
+    </span>
   </div>
 </header>
 
@@ -14,7 +26,7 @@
 <!-- Page content below header (assumes header is ~80px tall) -->
 <div class="p-4 bg-white h-[calc(105vh-110px)] grid grid-cols-2 gap-4 overflow-hidden">
   <!-- Left Side: Title, Authors, and Abstract -->
-  <div class="bg-white p-4 shadow-md rounded-lg overflow-y-auto">
+  <div class="bg-white p-4 shadow-[0_8px_40px_0_rgba(0,0,0,0.35)] rounded-lg overflow-y-auto">
     <h2 class="text-lg font-semibold">Document Details</h2>
     <div class="mt-4">
       <h3 class="text-md font-semibold">Title</h3>
@@ -68,7 +80,7 @@
   </div>
 
   <!-- Right Side: Summarized Content -->
-  <div class="bg-white p-4 shadow-md rounded-lg flex flex-col overflow-hidden">
+  <div class="bg-white p-4 shadow-[0_8px_40px_0_rgba(0,0,0,0.35)] rounded-lg flex flex-col overflow-hidden">
     <h2 class="text-lg font-semibold">Summarized Content</h2>
     <div class="mt-4 flex flex-col gap-4 flex-1 overflow-hidden">
       <!-- Summary Preview Field -->
@@ -92,23 +104,23 @@
       <div class="grid grid-cols-2 gap-2 mb-2">
         <ng-container *ngFor="let section of sections">
           <button
+          *ngIf="section !== 'abstract' && section !== 'review of related literature'"
             [ngClass]="{
               'bg-blue-700': selectedSection === section,
               'bg-blue-500': selectedSection !== section
             }"
             class="text-white px-4 py-2 rounded hover:bg-blue-700"
             (click)="selectSection(section)"
-            *ngIf="section !== 'abstract' && section !== 'review of related literature'"
           >
             {{ section }}
           </button>
         </ng-container>
         <button
           [ngClass]="{
-            'bg-green-700': selectedSection === 'whole_paper',
-            'bg-green-500': selectedSection !== 'whole_paper'
+            'bg-blue-700': selectedSection === 'whole_paper',
+            'bg-blue-500': selectedSection !== 'whole_paper'
           }"
-          class="text-white px-4 py-2 rounded hover:bg-green-700"
+          class="text-white px-4 py-2 rounded hover:bg-blue-700"
           (click)="selectSection('whole_paper')"
         >
           Summary of Whole Paper

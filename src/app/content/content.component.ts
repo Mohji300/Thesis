@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { BackendApiService } from '../backend-api.service';
+import { InsightsCacheService } from '../services/insights-cache.service';
 
 @Component({
   selector: 'app-content',
@@ -22,8 +23,10 @@ export class ContentComponent implements OnInit, OnDestroy {
   expandedAbstracts: { [id: number]: boolean } = {}; // Track expanded abstracts
   abstractPreviewLimit: number = 150; // Number of chars to show in preview
   insights: { [id: number]: string } = {};
+  page: number = 1;
+  pageSize: number = 10;
 
-  constructor(private backendApiService: BackendApiService, private router: Router, private route: ActivatedRoute) {}
+  constructor(private backendApiService: BackendApiService, private router: Router, private route: ActivatedRoute, private cache: InsightsCacheService) {}
 
   ngOnInit() {
     // Initialize the time immediately
@@ -36,7 +39,7 @@ export class ContentComponent implements OnInit, OnDestroy {
     // Get the search query from the route parameters
     this.route.queryParams.subscribe((params) => {
       this.searchQuery = params['query'] || '';
-      this.fetchDocuments();
+      this.loadDocumentsAndInsights();
     });
   }
 
@@ -49,6 +52,41 @@ export class ContentComponent implements OnInit, OnDestroy {
 
   private updateCurrentTime() {
     this.currentDateTime = new Date().toLocaleString();
+  }
+
+  get totalPages(): number {
+  return Math.ceil(this.documents.length / this.pageSize);
+}
+
+get paginatedDocuments() {
+  const start = (this.page - 1) * this.pageSize;
+  return this.documents.slice(start, start + this.pageSize);
+}
+
+goToPage(page: number) {
+  if (page >= 1 && page <= this.totalPages) {
+    this.page = page;
+  }
+}
+
+    /**
+   * Loads documents and insights, using cache if available.
+   */
+  async loadDocumentsAndInsights() {
+    // Use cache if query matches and data exists
+    if (
+      this.cache.lastQuery === this.searchQuery &&
+      this.cache.documents.length > 0 &&
+      Object.keys(this.cache.insights).length > 0
+    ) {
+      this.documents = this.cache.documents;
+      this.insights = this.cache.insights;
+      this.isLoading = false;
+      this.errorMessage = '';
+      return;
+    }
+    // Otherwise, fetch and generate
+    await this.fetchDocuments();
   }
 
   /**
@@ -72,6 +110,10 @@ export class ContentComponent implements OnInit, OnDestroy {
           for (const doc of this.documents) {
             await this.generateInsightFromBackendAsync(doc, this.searchQuery);
           }
+                    // Cache results
+          this.cache.documents = this.documents;
+          this.cache.insights = this.insights;
+          this.cache.lastQuery = this.searchQuery;
         } else {
           alert('Query not found. Please try a different search term.');
         }

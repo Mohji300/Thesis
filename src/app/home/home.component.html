@@ -1,44 +1,61 @@
 <!-- home.component.html -->
-<div class="min-h-screen flex flex-col bg-white">
-  <header class="flex justify-between w-full border-b border-white px-8 py-4 gap-8 text-black bg-white">
-    <div class="flex gap-2 items-center">
-      <span class="text-lg">Bicol University</span>
-      <span class="text-lg mx-2">|</span>
-      <span class="text-base font-light">{{ currentDateTime }}</span>
-      <button (click)="goToUpload()" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-        Upload
-        </button>
-    </div>
-  </header>
-
-  <div class="p-4 bg-white min-h-screen flex justify-center items-center">
-    <div class="w-full max-w-md">
-        <div *ngIf="isLoading" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
-    <div class="flex flex-col items-center">
-      <div class="loader mb-4"></div>
-      <div class="text-blue-600 font-semibold">Loading, please wait...</div>
-    </div>
-  </div>
-      <input
-        id="search"
-        type="text"
-        [(ngModel)]="searchQuery"
-        class="w-full p-2 border rounded-md shadow focus:outline-none focus:ring focus:border-blue-300"
-        placeholder="Enter your search query..."
-      />
-      <button
-        (click)="handleSearch()"
-        class="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+<header class="flex justify-between w-full border-b border-gray-300 px-8 py-4 gap-8 text-black bg-white">
+  <div class="flex gap-2 items-center">
+    <img src="assets/logo1.png" alt="logo" class="h-8 w-8 object-contain" />
+    <span class="text-lg relative group cursor-pointer">
+      SBDRS
+      <span
+        class="absolute mt-2 w-80 bg-white text-black text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 text-center"
+        style="top:100%; left:-110px;"
       >
-        Search
-      </button>
-
-      <!-- Loading Indicator -->
-      <div *ngIf="isLoading" class="text-center text-blue-500 mt-4">Validating query...</div>
-
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="text-center text-red-500 mt-4">{{ errorMessage }}</div>
-      
-    </div>
+        Semantic Based Document Retrieval System
+      </span>
+    </span>
   </div>
+  <div class="flex-1 flex justify-center items-center">
+    <span class="font-bold text-xl flex items-center gap-2">
+      Search
+    </span>
+  </div>
+  <div class="flex items-center">
+    <button (click)="goToUpload()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+      Upload
+    </button>
+  </div>
+</header>
+
+<div class="flex flex-1 flex-col items-center justify-center min-h-screen" style="margin-top: -100px;">
+  <h1 class="text-4xl font-bold text-gray-800 mt-12 mb-2 text-center">
+    The Bicol University Research Platform
+  </h1>
+  <div class="text-lg text-gray-500 mb-8 text-center">
+    All-in-one AI tools for students and researchers.
+  </div>
+
+<div class="w-full max-w-2xl">
+  <div class="bg-white rounded-xl shadow-2xl p-2 flex items-center relative transition-shadow duration-200 hover:shadow-[0_8px_40px_0_rgba(255,146,43,0.25)]">
+    <input
+      id="search"
+      type="text"
+      [(ngModel)]="searchQuery"
+      class="flex-1 text-lg px-6 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300"
+      placeholder="Enter your search query"
+    />
+    <button
+      (click)="handleSearch()"
+      type="button"
+      class="ml-2 bg-orange-500 hover:bg-orange-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition"
+      aria-label="Search"
+    >
+      <span class="material-icons" style="font-size: 2rem;">arrow_forward</span>
+    </button>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="text-center text-blue-500 mt-4">Validating query...</div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="text-center text-red-500 mt-4">{{ errorMessage }}</div>
 </div>
+</div>
+

@@ -140,6 +140,9 @@ fetchDocumentDetails(documentId: number) {
 }
 
 selectSection(section: string) {
+    if (section === 'abstract' || section === 'review of related literature') {
+    return;
+  }
   this.selectedSection = section;
   if (section === 'whole_paper') {
     this.summarizeWholePaper();
@@ -153,6 +156,9 @@ selectSection(section: string) {
    * Handles summarizing a specific section.
    */
 summarizeSection(section: string) {
+  if (section === 'abstract' || section === 'review of related literature') {
+    return;
+  }
   this.selectedSection = section;
   this.isLoading = true;
   this.showFullSummary = false;

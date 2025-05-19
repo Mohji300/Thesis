@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
 .loader {
   border: 8px solid #e0e7ef;
   border-top: 8px solid #2563eb;
@@ -9,4 +11,13 @@
 @keyframes spin {
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
+}
+
+body, html {
+  background: #f7f7f6;
+}
+
+input[type="text"]::placeholder {
+  color: #b0b0b0;
+  opacity: 1;
 }
